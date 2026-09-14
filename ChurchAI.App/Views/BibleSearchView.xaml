@@ -1,0 +1,113 @@
+<UserControl x:Class="ChurchAI.App.Views.BibleSearchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="800"
+             Background="Transparent" Foreground="#E1E2E6">
+             
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <Style x:Key="CyanScrollButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#00E5FF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe Fluent Icons"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1A00E5FF"/>
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Up Button -->
+            <RowDefinition Height="Auto"/> <!-- Loading Bar -->
+            <RowDefinition Height="*"/>    <!-- Results ListBox -->
+            <RowDefinition Height="Auto"/> <!-- Down Button -->
+        </Grid.RowDefinitions>
+
+        <!-- Up Scroll Button -->
+        <Button Grid.Row="0" Click="ScrollUp_Click" Style="{StaticResource CyanScrollButtonStyle}" Content="&#xE70E;" Margin="0,0,0,3" ToolTip="Scroll Up"/>
+
+        <!-- Loading State -->
+        <ProgressBar Grid.Row="1" IsIndeterminate="True" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" 
+                     Height="3" VerticalAlignment="Top" Foreground="#00E5FF" Background="Transparent" BorderThickness="0"/>
+
+        <!-- No Results State -->
+        <TextBlock Grid.Row="2" Text="No results found. Type a verse reference (e.g. John 3:16) or keyword." 
+                   Visibility="{Binding HasNoResults, Converter={StaticResource BoolToVis}}"
+                   Foreground="#94A3B8" FontSize="12" HorizontalAlignment="Center" Margin="0,30,0,0"/>
+
+        <ListBox Grid.Row="2" x:Name="VersesListBox" ItemsSource="{Binding SearchResults}" 
+                 SelectionChanged="ListBox_SelectionChanged"
+                 PreviewMouseLeftButtonDown="ListBox_PreviewMouseLeftButtonDown"
+                 MouseMove="ListBox_MouseMove"
+                 Background="Transparent" BorderThickness="0" Margin="0,2,0,0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="#26272B" BorderBrush="#3A3D46" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,5" HorizontalAlignment="Stretch" Cursor="Hand" ToolTip="Single click: Send to Detail Card | Double click: Project Live">
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold" Foreground="#00E5FF" FontSize="12">
+                                <Run Text="{Binding Book.Name}" />
+                                <Run Text="{Binding Chapter}" />:<Run Text="{Binding VerseNumber}" />
+                                <Run Text="{Binding Book.Translation.Abbreviation, StringFormat='({0})'}" Foreground="#94A3B8" FontSize="10"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="#E2E8F0" FontSize="11" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <EventSetter Event="MouseDoubleClick" Handler="ListBoxItem_MouseDoubleClick"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border x:Name="Bd" Background="Transparent" SnapsToDevicePixels="true">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="true">
+                                        <Setter TargetName="Bd" Property="Background" Value="#1C5A99"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+
+        <!-- Down Scroll Button -->
+        <Button Grid.Row="3" Click="ScrollDown_Click" Style="{StaticResource CyanScrollButtonStyle}" Content="&#xE70D;" Margin="0,3,0,0" ToolTip="Scroll Down"/>
+    </Grid>
+</UserControl>

@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChurchAI.Core\ChurchAI.Core.csproj" />
+    <ProjectReference Include="..\ChurchAI.Infrastructure\ChurchAI.Infrastructure.csproj" />
+    <ProjectReference Include="..\ChurchAI.AI\ChurchAI.AI.csproj" />
+    <ProjectReference Include="..\ChurchAI.Projection\ChurchAI.Projection.csproj" />
+    <ProjectReference Include="..\ChurchAI.Shared\ChurchAI.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.9" />
+    <PackageReference Include="NAudio" Version="2.3.0" />
+    <PackageReference Include="NDILibDotNetCoreBase" Version="2024.7.22.1" />
+    <PackageReference Include="Google.Cloud.Speech.V1" Version="3.8.0" />
+    <PackageReference Include="QRCoder" Version="1.8.0" />
+    <PackageReference Include="System.Speech" Version="10.0.9" />
+    <PackageReference Include="Whisper.net" Version="1.9.1" />
+    <PackageReference Include="Whisper.net.Runtime.NoAvx" Version="1.9.1" />
+    <PackageReference Include="WpfScreenHelper" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\**\*" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\app_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <Target Name="CopyWhisperDlls" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <WhisperDlls Include="$(OutputPath)runtimes\noavx\win-x64\*.dll" />
+      <VcRedistDlls Include="..\runtimes\vc_redist\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(WhisperDlls)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(VcRedistDlls)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(VcRedistDlls)" DestinationFolder="$(OutputPath)runtimes\noavx\win-x64" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(VcRedistDlls)" DestinationFolder="$(OutputPath)runtimes\noavx\win-x86" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

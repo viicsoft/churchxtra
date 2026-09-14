@@ -1,0 +1,249 @@
+<Window x:Class="ChurchAI.App.Views.SpeakerLowerThirdEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Preacher Lower Third Color &amp; Text Studio" Height="780" Width="1280"
+        WindowStartupLocation="CenterScreen" Background="#0A0B13" Foreground="#F8FAFC">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Title Header -->
+            <RowDefinition Height="*"/>    <!-- Main Studio Split Stage -->
+            <RowDefinition Height="Auto"/> <!-- Status Bar -->
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#131622" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="10" Padding="15,10" Margin="0,0,0,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🎨" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Preacher Lower Third Color &amp; Text Customizer Studio" Foreground="#00E5FF" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock Text="Click any container shape or text on the preview canvas to pick colors &amp; format text" Foreground="#94A3B8" FontSize="11" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Command="{Binding SendLiveCommand}" Content="🚀 Send Live" Background="#10B981" Foreground="White" FontWeight="Bold" Padding="15,8" Margin="0,0,10,0" BorderThickness="0" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button Command="{Binding SavePresetCommand}" Content="💾 Save Preset" Background="#8B5CF6" Foreground="White" FontWeight="Bold" Padding="15,8" Margin="0,0,10,0" BorderThickness="0" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button Click="Close_Click" Content="✖ Close" Background="#1E293B" Foreground="#94A3B8" FontWeight="Bold" Padding="12,8" BorderThickness="0" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Studio Split Stage -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.8*"/> <!-- Interactive Canvas Stage -->
+                <ColumnDefinition Width="1*"/>   <!-- Color Palette & Inspector -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Interactive Canvas Stage -->
+            <Border Grid.Column="0" Background="#11131F" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="1080p Interactive Stage Preview (Click elements to select)" Foreground="#38BDF8" FontWeight="Bold" FontSize="13" Margin="0,0,0,15"/>
+
+                    <!-- Viewbox Stage -->
+                    <Border Grid.Row="1" Background="#05060A" CornerRadius="8" BorderBrush="#1E293B" BorderThickness="1" ClipToBounds="True">
+                        <Viewbox Stretch="Uniform">
+                            <Canvas x:Name="StageCanvas" Width="1920" Height="1080" Background="Black">
+                                <Grid Width="1920" Height="1080">
+                                    <!-- Interactive Lower Third Render Host -->
+                                    <Grid HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="100,0,0,100">
+                                        
+                                        <!-- 1. Style: Blue Angular -->
+                                        <Grid x:Name="LtStyleBlueAngular" Visibility="Collapsed">
+                                            <StackPanel Orientation="Vertical">
+                                                <Grid Margin="0,0,0,-4">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Tag Badge -->
+                                                    <Border x:Name="TagBorder_Blue" Grid.Column="0" Padding="20,8,25,8" Margin="0,0,-15,0" Canvas.ZIndex="2" Cursor="Hand" PreviewMouseLeftButtonDown="TagBorder_MouseDown">
+                                                        <Border.LayoutTransform><SkewTransform AngleX="-25"/></Border.LayoutTransform>
+                                                        <TextBlock x:Name="TagTextBlock_Blue" Text="{Binding TagText}" FontSize="18" FontWeight="Bold" FontFamily="Segoe UI" Cursor="Hand" PreviewMouseLeftButtonDown="TagText_MouseDown">
+                                                            <TextBlock.LayoutTransform><SkewTransform AngleX="25"/></TextBlock.LayoutTransform>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <!-- Title Banner -->
+                                                    <Border x:Name="TitleBorder_Blue" Grid.Column="1" Padding="45,10,35,10" Canvas.ZIndex="1" Cursor="Hand" PreviewMouseLeftButtonDown="TitleBorder_MouseDown">
+                                                        <Border.LayoutTransform><SkewTransform AngleX="-25"/></Border.LayoutTransform>
+                                                        <TextBlock x:Name="TitleTextBlock_Blue" Text="{Binding Title}" FontSize="32" FontWeight="Bold" FontFamily="Segoe UI" Cursor="Hand" PreviewMouseLeftButtonDown="TitleText_MouseDown">
+                                                            <TextBlock.LayoutTransform><SkewTransform AngleX="25"/></TextBlock.LayoutTransform>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </Grid>
+                                                <!-- Subtitle Bar -->
+                                                <Border x:Name="SubtitleBorder_Blue" Padding="35,6,25,6" HorizontalAlignment="Right" Margin="0,0,30,0" Cursor="Hand" PreviewMouseLeftButtonDown="SubtitleBorder_MouseDown">
+                                                    <Border.LayoutTransform><SkewTransform AngleX="-25"/></Border.LayoutTransform>
+                                                    <TextBlock x:Name="SubtitleTextBlock_Blue" Text="{Binding Subtitle}" FontSize="16" FontWeight="SemiBold" FontFamily="Segoe UI" Cursor="Hand" PreviewMouseLeftButtonDown="SubtitleText_MouseDown">
+                                                        <TextBlock.LayoutTransform><SkewTransform AngleX="25"/></TextBlock.LayoutTransform>
+                                                    </TextBlock>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- 2. Style: Gold Badge -->
+                                        <Grid x:Name="LtStyleGoldBadge" Visibility="Collapsed">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <!-- Circle Gold Badge -->
+                                                <Grid x:Name="TagBorder_Gold" Margin="0,0,-20,0" Canvas.ZIndex="3" VerticalAlignment="Center" Cursor="Hand" PreviewMouseLeftButtonDown="TagBorder_MouseDown">
+                                                    <Ellipse x:Name="TagEllipse_Gold" Width="90" Height="90" Stroke="#1E293B" StrokeThickness="3"/>
+                                                    <TextBlock x:Name="TagTextBlock_Gold" Text="{Binding TagText}" Foreground="#0F172A" FontSize="14" FontWeight="ExtraBold" TextWrapping="Wrap" TextAlignment="Center" Width="70" VerticalAlignment="Center" HorizontalAlignment="Center" Cursor="Hand" PreviewMouseLeftButtonDown="TagText_MouseDown"/>
+                                                </Grid>
+                                                <!-- Dark Charcoal Slanted Strip -->
+                                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                    <Border x:Name="TitleBorder_Gold" Background="#1E293B" Padding="40,12,30,12" CornerRadius="0,6,6,0" Cursor="Hand" PreviewMouseLeftButtonDown="TitleBorder_MouseDown">
+                                                        <Border.LayoutTransform><SkewTransform AngleX="-20"/></Border.LayoutTransform>
+                                                        <StackPanel Orientation="Vertical">
+                                                            <StackPanel.LayoutTransform><SkewTransform AngleX="20"/></StackPanel.LayoutTransform>
+                                                            <TextBlock x:Name="TitleTextBlock_Gold" Text="{Binding Title}" FontSize="30" FontWeight="Bold" Cursor="Hand" PreviewMouseLeftButtonDown="TitleText_MouseDown"/>
+                                                            <TextBlock x:Name="SubtitleTextBlock_Gold" Text="{Binding Subtitle}" FontSize="16" FontWeight="SemiBold" Margin="0,2,0,0" Cursor="Hand" PreviewMouseLeftButtonDown="SubtitleText_MouseDown"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- 3. Style: Cyberpunk Purple Chevron -->
+                                        <Grid x:Name="LtStyleCyberpunkPurple" Visibility="Collapsed">
+                                            <StackPanel Orientation="Horizontal">
+                                                <!-- Logo Badge -->
+                                                <Border x:Name="TagBorder_Purple" Width="85" Height="85" CornerRadius="42.5" BorderBrush="#00E5FF" BorderThickness="3" Margin="0,0,-15,0" Canvas.ZIndex="3" VerticalAlignment="Center" Cursor="Hand" PreviewMouseLeftButtonDown="TagBorder_MouseDown">
+                                                    <TextBlock x:Name="TagTextBlock_Purple" Text="{Binding TagText}" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Width="70" Cursor="Hand" PreviewMouseLeftButtonDown="TagText_MouseDown"/>
+                                                </Border>
+                                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                    <Border x:Name="TitleBorder_Purple" Padding="35,10,30,10" CornerRadius="0,10,0,0" Cursor="Hand" PreviewMouseLeftButtonDown="TitleBorder_MouseDown">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="❯❯ " Foreground="#00E5FF" FontSize="26" FontWeight="Bold"/>
+                                                            <TextBlock x:Name="TitleTextBlock_Purple" Text="{Binding Title}" FontSize="28" FontWeight="Bold" Cursor="Hand" PreviewMouseLeftButtonDown="TitleText_MouseDown"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Border x:Name="SubtitleBorder_Purple" Background="#0284C7" Padding="35,5,25,5" CornerRadius="0,0,10,0" Cursor="Hand" PreviewMouseLeftButtonDown="SubtitleBorder_MouseDown">
+                                                        <TextBlock x:Name="SubtitleTextBlock_Purple" Text="{Binding Subtitle}" FontSize="15" FontWeight="SemiBold" Cursor="Hand" PreviewMouseLeftButtonDown="SubtitleText_MouseDown"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- 4. Style: Classic Navy Slate -->
+                                        <Grid x:Name="LtStyleClassicNavy" Visibility="Collapsed">
+                                            <Border x:Name="TitleBorder_Navy" Background="#E60F172A" BorderBrush="#00E5FF" BorderThickness="4,0,0,0" CornerRadius="0,8,8,0" Padding="25,12,35,12" Cursor="Hand" PreviewMouseLeftButtonDown="TitleBorder_MouseDown">
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock x:Name="TagTextBlock_Navy" Text="{Binding TagText}" Foreground="#00E5FF" FontSize="13" FontWeight="Bold" Cursor="Hand" PreviewMouseLeftButtonDown="TagText_MouseDown"/>
+                                                    <TextBlock x:Name="TitleTextBlock_Navy" Text="{Binding Title}" Foreground="White" FontSize="30" FontWeight="Bold" Margin="0,3,0,0" Cursor="Hand" PreviewMouseLeftButtonDown="TitleText_MouseDown"/>
+                                                    <TextBlock x:Name="SubtitleTextBlock_Navy" Text="{Binding Subtitle}" Foreground="#94A3B8" FontSize="16" Margin="0,2,0,0" Cursor="Hand" PreviewMouseLeftButtonDown="SubtitleText_MouseDown"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+
+                                    </Grid>
+                                </Grid>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Right: Color Palette & Inspector -->
+            <Border Grid.Column="1" Background="#11131F" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="12" Padding="15" Margin="10,0,0,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Vertical">
+                        
+                        <!-- Selected Element Header Banner -->
+                        <Border Background="#1E293B" CornerRadius="8" Padding="12,10" Margin="0,0,0,15">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="SELECTED GRAPHIC PART:" Foreground="#94A3B8" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding SelectedElementName}" Foreground="#00E5FF" FontSize="13" FontWeight="Bold" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Graphic Style Template Picker Buttons -->
+                        <TextBlock Text="📐 Graphic Style Template (Switch Design):" Foreground="#38BDF8" FontWeight="Bold" FontSize="11.5" Margin="0,0,0,6"/>
+                        <UniformGrid Columns="2" Margin="0,0,0,15">
+                            <Button Content="🔷 Blue Angular" Command="{Binding SelectStylePresetCommand}" CommandParameter="BlueAngular" Background="#1E293B" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="8,6" Margin="0,0,3,3" BorderThickness="1" BorderBrush="#3B82F6" Cursor="Hand"/>
+                            <Button Content="🟡 Gold Badge" Command="{Binding SelectStylePresetCommand}" CommandParameter="GoldBadge" Background="#1E293B" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="8,6" Margin="3,0,0,3" BorderThickness="1" BorderBrush="#F59E0B" Cursor="Hand"/>
+                            <Button Content="🟣 Cyberpunk Purple" Command="{Binding SelectStylePresetCommand}" CommandParameter="CyberpunkPurple" Background="#1E293B" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="8,6" Margin="0,3,3,0" BorderThickness="1" BorderBrush="#8B5CF6" Cursor="Hand"/>
+                            <Button Content="🛡️ Classic Slate" Command="{Binding SelectStylePresetCommand}" CommandParameter="ClassicNavy" Background="#1E293B" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="8,6" Margin="3,3,0,0" BorderThickness="1" BorderBrush="#00E5FF" Cursor="Hand"/>
+                        </UniformGrid>
+
+                        <!-- Color Swatches Palette -->
+                        <TextBlock Text="🎨 Color Palette Swatches (Click to Apply):" Foreground="#38BDF8" FontWeight="Bold" FontSize="12" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding ColorSwatches}" Margin="0,0,0,15">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="4"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.SelectSwatchColorCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}" Height="36" Margin="3" Cursor="Hand" BorderThickness="1" BorderBrush="#334155">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{Binding}" CornerRadius="6" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect Color="#000000" BlurRadius="6" ShadowDepth="1" Opacity="0.2"/>
+                                                    </Border.Effect>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Hex Color Code Input -->
+                        <TextBlock Text="Hex Color Code (Custom):" Foreground="#94A3B8" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding ActiveColorHex, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" BorderBrush="#334155" BorderThickness="1" Padding="8,6" FontSize="13" FontWeight="Bold" Margin="0,0,0,20"/>
+
+                        <!-- Text Content Inspector -->
+                        <TextBlock Text="✏️ Text Content &amp; Formatting:" Foreground="#38BDF8" FontWeight="Bold" FontSize="12" Margin="0,0,0,10"/>
+
+                        <!-- Tag Text Input -->
+                        <TextBlock Text="Tag / Badge Text:" Foreground="#94A3B8" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding TagText, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" BorderBrush="#334155" BorderThickness="1" Padding="8,6" FontSize="12" Margin="0,0,0,10"/>
+
+                        <!-- Preacher Title Input -->
+                        <TextBlock Text="Preacher / Speaker Name:" Foreground="#94A3B8" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" BorderBrush="#334155" BorderThickness="1" Padding="8,6" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                        <!-- Subtitle Input -->
+                        <TextBlock Text="Subtitle / Theme Designation:" Foreground="#94A3B8" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding Subtitle, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" BorderBrush="#334155" BorderThickness="1" Padding="8,6" FontSize="12" Margin="0,0,0,15"/>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="#131622" CornerRadius="8" Padding="12,8" Margin="0,15,0,0">
+            <TextBlock Text="{Binding StatusMessage}" Foreground="#38BDF8" FontWeight="SemiBold" FontSize="12"/>
+        </Border>
+    </Grid>
+</Window>

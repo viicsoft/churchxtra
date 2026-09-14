@@ -1,0 +1,82 @@
+<Window x:Class="ChurchAI.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:ChurchAI.App.ViewModels"
+        xmlns:views="clr-namespace:ChurchAI.App.Views"
+        mc:Ignorable="d"
+        Title="ChurchXtra AI Projector" Height="768" Width="1366"
+        Icon="/Assets/app_logo.png"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" WindowState="Maximized" AllowsTransparency="True"
+        Background="#0F172A" Foreground="#E2E8F0"
+        FontFamily="Segoe UI"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        PreviewKeyDown="Window_PreviewKeyDown">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
+        <!-- Topbar Tab Button Style -->
+        <Style x:Key="TopbarTabButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/> <!-- Top Custom Title Bar -->
+            <RowDefinition Height="*"/>  <!-- Main Screen Content -->
+        </Grid.RowDefinitions>
+
+        <!-- Custom Title Bar -->
+        <Border Grid.Row="0" Background="#202020" BorderThickness="0">
+            <Grid Margin="15,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <!-- Icon & Title -->
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/> <!-- Window Controls -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Icon & Title -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="/Assets/app_logo.png" Width="22" Height="22" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="ChurchXtra AI Projector" Foreground="#E2E8F0" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Window Controls -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Command="{Binding MinimizeCommand}" Content="&#xE921;" FontFamily="Segoe Fluent Icons" Background="Transparent" Foreground="#94A3B8" BorderThickness="0" Width="30" Height="30" FontSize="10" ToolTip="Minimize" Cursor="Hand"/>
+                    <Button Command="{Binding MaximizeRestoreCommand}" Content="&#xE922;" FontFamily="Segoe Fluent Icons" Background="Transparent" Foreground="#94A3B8" BorderThickness="0" Width="30" Height="30" FontSize="10" ToolTip="Maximize" Cursor="Hand"/>
+                    <Button Command="{Binding CloseCommand}" Content="&#xE8BB;" FontFamily="Segoe Fluent Icons" Background="Transparent" Foreground="#94A3B8" BorderThickness="0" Width="30" Height="30" FontSize="10" ToolTip="Close" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Workspace Area -->
+        <Border Grid.Row="1" Background="#1F2025">
+            <ContentControl Content="{Binding NavigationService.CurrentViewModel}"/>
+        </Border>
+    </Grid>
+</Window>

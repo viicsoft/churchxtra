@@ -1,0 +1,2053 @@
+<UserControl x:Class="ChurchAI.App.Views.ProjectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:ChurchAI.App.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="900" d:DesignWidth="1400"
+             Background="#0B0D19" Foreground="#E1E2E6"
+             PreviewKeyDown="UserControl_PreviewKeyDown">
+             
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis"/>
+        <converters:AudioLevelToHeightConverter x:Key="AudioConv1" BaseHeight="3" Multiplier="12"/>
+        <converters:AudioLevelToHeightConverter x:Key="AudioConv2" BaseHeight="5" Multiplier="16"/>
+        <converters:AudioLevelToHeightConverter x:Key="AudioConv3" BaseHeight="7" Multiplier="20"/>
+        <converters:AudioLevelToHeightConverter x:Key="AudioConv4" BaseHeight="4" Multiplier="14"/>
+
+        <!-- Menu Item Style -->
+        <Style x:Key="WorshipMenuStyle" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="#E1E2E6"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <!-- Cyan Scroll Button Style (Transparent by default, highlight on hover/click) -->
+        <Style x:Key="CyanScrollButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#00E5FF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe Fluent Icons"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1A00E5FF"/>
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Dark Theme ComboBox Style (Styled EXACTLY to match Recent Button) -->
+        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="#262A45"/>
+            <Setter Property="Foreground" Value="#00E5FF"/>
+            <Setter Property="BorderBrush" Value="#3B82F6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="7,3"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="#131622"/>
+                        <Setter Property="Foreground" Value="#E2E8F0"/>
+                        <Setter Property="Padding" Value="8,5"/>
+                        <Setter Property="FontSize" Value="10.5"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#1D4ED8"/>
+                                <Setter Property="Foreground" Value="#00E5FF"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid x:Name="MainGrid">
+                            <ToggleButton x:Name="ToggleButton" 
+                                          Focusable="False" 
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                          ClickMode="Press"
+                                          Cursor="Hand">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Border" 
+                                                Background="#262A45" 
+                                                BorderBrush="#3B82F6" 
+                                                BorderThickness="1" 
+                                                CornerRadius="6" 
+                                                Padding="7,3">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="1" 
+                                                           Text="▼" 
+                                                           Foreground="#00E5FF" 
+                                                           FontSize="8.5" 
+                                                           Margin="5,0,0,0" 
+                                                           VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="#333A5E"/>
+                                                <Setter TargetName="Border" Property="BorderBrush" Value="#00E5FF"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="#2D3354"/>
+                                                <Setter TargetName="Border" Property="BorderBrush" Value="#00E5FF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            
+                            <ContentPresenter x:Name="ContentSite" 
+                                              IsHitTestVisible="False" 
+                                              Content="{TemplateBinding SelectionBoxItem}" 
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" 
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" 
+                                              Margin="8,2,22,2" 
+                                              HorizontalAlignment="Left" 
+                                              VerticalAlignment="Center"
+                                              TextElement.Foreground="#00E5FF"
+                                              TextElement.FontWeight="Bold"
+                                              TextElement.FontSize="10"/>
+                                              
+                            <Popup x:Name="Popup" 
+                                   Placement="Bottom" 
+                                   IsOpen="{TemplateBinding IsDropDownOpen}" 
+                                   AllowsTransparency="True" 
+                                   Focusable="False" 
+                                   PopupAnimation="Slide">
+                                <Grid x:Name="DropDown" 
+                                      SnapsToDevicePixels="True" 
+                                      MinWidth="{TemplateBinding ActualWidth}" 
+                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder" 
+                                            Background="#131622" 
+                                            BorderBrush="#3B82F6" 
+                                            BorderThickness="1.5" 
+                                            CornerRadius="8" 
+                                            Margin="0,4,0,0">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#3B82F6" BlurRadius="12" ShadowDepth="2" Opacity="0.4"/>
+                                        </Border.Effect>
+                                        <ScrollViewer Margin="4" SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Sub-Tab Header Style -->
+        <Style x:Key="SubTabItemStyle" TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1A1D2B"/>
+                                <Setter Property="Foreground" Value="#00E5FF"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#252A3F"/>
+                                <Setter Property="Foreground" Value="#00E5FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Resource TabItem Style -->
+        <Style x:Key="ResourceTabItemStyle" TargetType="TabItem">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" BorderThickness="0,0,0,2" BorderBrush="Transparent">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#1F2025"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#00E5FF"/>
+                                <Setter Property="Foreground" Value="#00E5FF"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Left SubTabItem Style -->
+        <Style x:Key="LeftSubTabItemStyle" TargetType="TabItem">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" BorderThickness="0,0,0,2" BorderBrush="Transparent">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#1F2025"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#00E5FF"/>
+                                <Setter Property="Foreground" Value="#00E5FF"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Left Inner SubTabItem Style -->
+        <Style x:Key="InnerSubTabItemStyle" TargetType="TabItem">
+            <Setter Property="Background" Value="#1C1D24"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" BorderThickness="0,0,0,2" BorderBrush="Transparent">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#11131F"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#00E5FF"/>
+                                <Setter Property="Foreground" Value="#00E5FF"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="NeonScrollButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe Fluent Icons"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" CornerRadius="4" Name="Bd">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1AFFFFFF"/>
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Ribbon Toolbar Button Style -->
+        <Style x:Key="RibbonButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Rbd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Rbd" Property="Background" Value="#1AFFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Bottom Navigation Button Style -->
+        <Style x:Key="BottomNavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="14,7,18,7"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="NavBtnBd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="NavBtnBd" Property="Background" Value="#1AFFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="NavBtnBd" Property="Background" Value="#30FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Row 0: Menu Bar (File, Edit...) -->
+            <RowDefinition Height="Auto"/> <!-- Row 1: Ribbon Bar (Buttons) -->
+            <RowDefinition Height="*"/>    <!-- Row 2: Workspace Panels (Full Height) -->
+            <RowDefinition Height="Auto"/> <!-- Row 3: Modern Bottom Navigation Bar -->
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Menu Bar -->
+        <Border Grid.Row="0" Background="#2B2C33" BorderBrush="#3A3D46" BorderThickness="0,0,0,1">
+            <Menu Background="Transparent" VerticalAlignment="Center" Margin="5,0">
+                <MenuItem Header="File" Style="{StaticResource WorshipMenuStyle}"/>
+                <MenuItem Header="Edit" Style="{StaticResource WorshipMenuStyle}"/>
+                <MenuItem Header="Live" Style="{StaticResource WorshipMenuStyle}"/>
+                <MenuItem Header="Profiles" Style="{StaticResource WorshipMenuStyle}"/>
+                <MenuItem Header="View" Style="{StaticResource WorshipMenuStyle}"/>
+                <MenuItem Header="Help" Style="{StaticResource WorshipMenuStyle}"/>
+            </Menu>
+        </Border>
+
+        <!-- Row 1: Ribbon Toolbar -->
+        <Border Grid.Row="1" Background="#2F3138" BorderBrush="#3A3D46" BorderThickness="0,0,0,1" Padding="10,5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <!-- Left Buttons -->
+                    <ColumnDefinition Width="*"/>    <!-- Middle Title -->
+                    <ColumnDefinition Width="Auto"/> <!-- Right Actions -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Buttons -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Style="{StaticResource RibbonButtonStyle}">
+                        <StackPanel>
+                            <TextBlock Text="&#xE710;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#4CAF50" HorizontalAlignment="Center"/>
+                            <TextBlock Text="New" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource RibbonButtonStyle}" Margin="5,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xE8B7;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#FFC107" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Open" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource RibbonButtonStyle}" Margin="5,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xE74E;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#2196F3" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Save" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Middle Title -->
+                <TextBlock Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#94A3B8" FontSize="14" FontWeight="Bold">
+                    <Run Text="Schedule - "/>
+                    <Run Text="{Binding CurrentlyProjectedItem.Reference, FallbackValue='None'}" Foreground="White"/>
+                </TextBlock>
+
+                <!-- Right Actions -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Command="{Binding ProjectFromPopupCommand}" Style="{StaticResource RibbonButtonStyle}" Margin="5,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xE768;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#4CAF50" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Go Live" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource RibbonButtonStyle}" Margin="5,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xEEA3;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#2196F3" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Alerts" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ShowLogoCommand}" Style="{StaticResource RibbonButtonStyle}" Margin="5,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xE753;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#E2E8F0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Logo" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ClearScreenCommand}" Style="{StaticResource RibbonButtonStyle}" Margin="5,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xE790;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#FF5252" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Black" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ClearScreenCommand}" Style="{StaticResource RibbonButtonStyle}" Margin="5,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xE894;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#E2E8F0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Clear" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding StartProjectionCommand}" Style="{StaticResource RibbonButtonStyle}" Margin="5,0">
+                        <StackPanel>
+                            <TextBlock Text="&#xE7F4;" FontFamily="Segoe Fluent Icons" FontSize="16" Foreground="#00E5FF" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Output Screen" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 2: Workspace Panels Container -->
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Horizontal Resizable 3 Cards Workspace (Row 0 of Container) -->
+            <Grid Grid.Row="0" Margin="10" Visibility="{Binding IsFullViewMode, Converter={StaticResource InverseBoolToVis}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*" MinWidth="150"/> <!-- Left Card (Scriptures) -->
+                    <ColumnDefinition Width="Auto"/> <!-- GridSplitter -->
+                    <ColumnDefinition Width="1.5*" MinWidth="200"/> <!-- Middle Card (Live Screen) -->
+                    <ColumnDefinition Width="Auto"/> <!-- GridSplitter -->
+                    <ColumnDefinition Width="1.2*" MinWidth="150"/> <!-- Right Card (Hymns) -->
+                </Grid.ColumnDefinitions>
+
+                <!-- GridSplitter between Left and Middle -->
+                <GridSplitter Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5" Background="#1E293B" ResizeBehavior="PreviousAndNext" Visibility="{Binding IsFullViewMode, Converter={StaticResource InverseBoolToVis}}"/>
+                
+                <!-- GridSplitter between Middle and Right -->
+                <GridSplitter Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="5" Background="#1E293B" ResizeBehavior="PreviousAndNext" Visibility="{Binding IsFullViewMode, Converter={StaticResource InverseBoolToVis}}"/>                <!-- Column 0: Scriptures & Hymns Left Card (Electric Blue Theme - Gray Border) -->
+                <Grid Grid.Column="0" Margin="6" Visibility="{Binding IsFullViewMode, Converter={StaticResource InverseBoolToVis}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top: Left Card Container -->
+                    <Border Grid.Row="0" Background="#131622" BorderBrush="#4A4D56" BorderThickness="1.5" CornerRadius="12,12,6,6" Margin="0,0,0,6">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#4A4D56" BlurRadius="15" ShadowDepth="0" Opacity="0.45"/>
+                        </Border.Effect>
+                        <Grid>
+                            <TabControl SelectedIndex="{Binding SelectedLeftCardSubTabIndex, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Margin="0">
+                                <!-- Schedule Tab -->
+                                <TabItem Header="sche" Style="{StaticResource LeftSubTabItemStyle}">
+                                    <Border Background="#1F2025" Padding="10" AllowDrop="True" DragOver="ScheduleBorder_DragOver" Drop="ScheduleBorder_Drop">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="Active Projection Queue Playlist" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
+                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+                                                <ItemsControl ItemsSource="{Binding ProjectionQueue}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="#26272B" BorderBrush="#3A3D46" BorderThickness="1" CornerRadius="4" Margin="0,0,0,5" Padding="8">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <StackPanel Grid.Column="0">
+                                                                        <TextBlock Text="{Binding Reference}" Foreground="#00E5FF" FontSize="12" FontWeight="Bold"/>
+                                                                        <TextBlock Text="{Binding Text}" Foreground="#E2E8F0" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                                                    </StackPanel>
+                                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                                                                        <Button Content="Go Live" Command="{Binding DataContext.ProjectSelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#0AA064" Foreground="White" FontWeight="Bold" FontSize="10" BorderThickness="0" Padding="10,4" Margin="0,0,4,0" Cursor="Hand"/>
+                                                                        <Button Content="✂️ Split" Command="{Binding DataContext.SplitItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#3B82F6" Foreground="White" FontWeight="Bold" FontSize="10" BorderThickness="0" Padding="8,4" Margin="0,0,4,0" Cursor="Hand" ToolTip="Split verse into 2 parts"/>
+                                                                        <Button Content="Remove" Command="{Binding DataContext.RemoveSelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#FF5252" Foreground="White" FontSize="10" BorderThickness="0" Padding="10,4" Cursor="Hand"/>
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </Grid>
+                                    </Border>
+                                </TabItem>
+
+                                <!-- Scriptures Tab (verses) -->
+                                <TabItem Header="verses" Style="{StaticResource LeftSubTabItemStyle}">
+                                    <Border Background="#11131F" Padding="4">
+                                        <TabControl SelectedIndex="{Binding SelectedVersesInnerSubTabIndex, Mode=TwoWay}" Background="Transparent" BorderThickness="0" Margin="0">
+                                            <!-- Search Tab -->
+                                            <TabItem Header="Search" Style="{StaticResource InnerSubTabItemStyle}">
+                                                <Border Background="#11131F" Padding="4">
+                                                    <ContentControl Content="{Binding BibleSearch}"/>
+                                                </Border>
+                                            </TabItem>
+
+                                            <!-- Speech Tab -->
+                                            <TabItem Header="Speech" Style="{StaticResource InnerSubTabItemStyle}">
+                                                <Border Background="#11131F" Padding="4">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        
+                                                        <TextBlock Grid.Row="0" Text="🎙️ Live Speech Scriptures" Foreground="#00E5FF" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                                                        
+                                                        <ListBox Grid.Row="1" x:Name="ScripturesListBox" ItemsSource="{Binding DetectedSpeechScriptures}" SelectedItem="{Binding SelectedSpeechScripture}" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                                            <ListBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Background="#1E2235" BorderBrush="#2D324F" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,6" HorizontalAlignment="Stretch">
+                                                                        <Border.InputBindings>
+                                                                            <MouseBinding MouseAction="LeftClick" 
+                                                                                          Command="{Binding DataContext.PreviewSpeechItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                                                          CommandParameter="{Binding}"/>
+                                                                        </Border.InputBindings>
+                                                                        <StackPanel>
+                                                                            <TextBlock Text="{Binding Reference}" FontWeight="Bold" Foreground="#00E5FF" FontSize="11"/>
+                                                                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="#E2E8F0" FontSize="10" Margin="0,3,0,0" LineHeight="14"/>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ListBox.ItemTemplate>
+                                                        </ListBox>
+
+                                                        <!-- Toggle Switch Bar -->
+                                                        <Border Grid.Row="2" Background="#1A1C29" CornerRadius="4" Padding="8,6" BorderBrush="#26293B" BorderThickness="1" Margin="0,4,0,0">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Text="Scripture Detection" Foreground="#94A3B8" FontSize="10" VerticalAlignment="Center"/>
+                                                                <CheckBox Grid.Column="1" IsChecked="{Binding IsScriptureListeningEnabled}" Content="Listen" Foreground="#00E5FF" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" Cursor="Hand"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                            </TabItem>
+                                        </TabControl>
+                                    </Border>
+                                </TabItem>
+                                
+                                <!-- Hymns Tab (hymns) -->
+                                <TabItem Header="hymns" Style="{StaticResource LeftSubTabItemStyle}">
+                                    <Border Background="#11131F" Padding="4">
+                                        <TabControl Background="Transparent" BorderThickness="0" Margin="0">
+                                            <!-- Search Tab -->
+                                            <TabItem Header="Search" Style="{StaticResource InnerSubTabItemStyle}">
+                                                <Border Background="#11131F" Padding="4">
+                                                    <ContentControl Content="{Binding HymnSearch}"/>
+                                                </Border>
+                                            </TabItem>
+
+                                            <!-- Speech Tab -->
+                                            <TabItem Header="Speech" Style="{StaticResource InnerSubTabItemStyle}">
+                                                <Border Background="#11131F" Padding="4">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+
+                                                        <TextBlock Grid.Row="0" Text="🎙️ Live Speech Hymns" Foreground="#8B5CF6" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+
+                                                        <ListBox Grid.Row="1" x:Name="HymnsListBox" ItemsSource="{Binding DetectedSpeechHymns}" SelectedItem="{Binding SelectedSpeechHymn}" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                                            <ListBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Background="#1E2235" BorderBrush="#2D324F" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,6" HorizontalAlignment="Stretch">
+                                                                        <Border.InputBindings>
+                                                                            <MouseBinding MouseAction="LeftClick" 
+                                                                                          Command="{Binding DataContext.PreviewSpeechHymnItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                                                          CommandParameter="{Binding}"/>
+                                                                        </Border.InputBindings>
+                                                                        <StackPanel>
+                                                                            <TextBlock Text="{Binding Title}" FontWeight="Bold" Foreground="#8B5CF6" FontSize="11"/>
+                                                                            <TextBlock Text="{Binding StanzaText}" TextWrapping="Wrap" Foreground="#E2E8F0" FontSize="10" Margin="0,3,0,0" LineHeight="14"/>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ListBox.ItemTemplate>
+                                                        </ListBox>
+
+                                                        <!-- Toggle Switch Bar -->
+                                                        <Border Grid.Row="2" Background="#1A1C29" CornerRadius="4" Padding="8,6" BorderBrush="#26293B" BorderThickness="1" Margin="0,4,0,0">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Text="Hymn Detection" Foreground="#94A3B8" FontSize="10" VerticalAlignment="Center"/>
+                                                                <CheckBox Grid.Column="1" IsChecked="{Binding IsHymnListeningEnabled}" Content="Listen" Foreground="#8B5CF6" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" Cursor="Hand"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                            </TabItem>
+                                        </TabControl>
+                                    </Border>
+                                </TabItem>
+
+                                <!-- Community Tab -->
+                                <TabItem Header="{Binding CommunityTabHeader}" Style="{StaticResource LeftSubTabItemStyle}">
+                                    <Border Background="#11131F" Padding="4">
+                                        <ContentControl Content="{Binding Community}"/>
+                                    </Border>
+                                </TabItem>
+
+                                <!-- Announcements Tab -->
+                                <TabItem Header="announce" Style="{StaticResource LeftSubTabItemStyle}">
+                                    <Border Background="#11131F" Padding="6">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/> <!-- Title Input -->
+                                                <RowDefinition Height="*"/>    <!-- Body Input -->
+                                                <RowDefinition Height="Auto"/> <!-- Buttons Row -->
+                                                <RowDefinition Height="120"/>  <!-- Quick Templates -->
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Title -->
+                                            <StackPanel Grid.Row="0" Margin="0,0,0,6">
+                                                <TextBlock Text="Title" Foreground="#94A3B8" FontSize="10" FontWeight="Bold" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding AnnouncementTitle, UpdateSourceTrigger=PropertyChanged}" Background="#1F2025" Foreground="White" BorderBrush="#3A3D46" BorderThickness="1" FontSize="11" Padding="4,3"/>
+                                            </StackPanel>
+
+                                            <!-- Body -->
+                                            <StackPanel Grid.Row="1" Margin="0,0,0,6">
+                                                <TextBlock Text="Body / Content" Foreground="#94A3B8" FontSize="10" FontWeight="Bold" Margin="0,0,0,3"/>
+                                                <TextBox Text="{Binding AnnouncementBody, UpdateSourceTrigger=PropertyChanged}" Background="#1F2025" Foreground="White" BorderBrush="#3A3D46" BorderThickness="1" FontSize="11" Padding="4" AcceptsReturn="True" TextWrapping="Wrap" VerticalAlignment="Stretch"/>
+                                            </StackPanel>
+
+                                            <!-- Buttons -->
+                                            <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,0,0,6">
+                                                <Grid Margin="0,0,0,3">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button Grid.Column="0" Content="▶ Live" Command="{Binding ProjectAnnouncementCommand}" Background="#0AA064" Foreground="White" FontWeight="Bold" FontSize="10" Padding="4,5" BorderThickness="0" Cursor="Hand" Margin="0,0,1,0"/>
+                                                    <Button Grid.Column="1" Content="+ Queue" Command="{Binding AddAnnouncementToQueueCommand}" Background="#2D2D30" Foreground="White" FontSize="10" Padding="4,5" BorderThickness="1" BorderBrush="#3A3D46" Cursor="Hand" Margin="1,0,1,0"/>
+                                                    <Button Grid.Column="2" Content="💾 Save" Command="{Binding SaveAnnouncementTemplateCommand}" Background="#2D2D30" Foreground="White" FontSize="10" Padding="4,5" BorderThickness="1" BorderBrush="#3A3D46" Cursor="Hand" Margin="3,0,0,0"/>
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <!-- Quick Templates List -->
+                                            <Grid Grid.Row="3">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0" Text="Quick Templates" Foreground="#94A3B8" FontSize="10" FontWeight="Bold" Margin="0,0,0,3"/>
+                                                <ListBox Grid.Row="1" ItemsSource="{Binding SavedAnnouncements}" SelectedItem="{Binding SelectedSavedAnnouncement}" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch">
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="#26272B" BorderBrush="#3A3D46" BorderThickness="1" CornerRadius="4" Padding="6,4" Margin="0,0,0,3">
+                                                                <Border.InputBindings>
+                                                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding DataContext.ProjectSavedAnnouncementCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
+                                                                </Border.InputBindings>
+                                                                <StackPanel>
+                                                                    <TextBlock Text="{Binding Reference}" Foreground="#00E5FF" FontSize="10" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Text="{Binding Text}" Foreground="#E2E8F0" FontSize="9" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </TabItem>
+                            </TabControl>
+                        </Grid>
+                    </Border>
+
+                    <!-- Bottom: Scripture Search Bar (Immediately outside/below bottom border of Left Card) -->
+                    <Border Grid.Row="1" Background="#1A1D2B" BorderBrush="#3B82F6" BorderThickness="1.5" CornerRadius="8" Padding="6,4">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/> <!-- Recent Searches Popup Button -->
+                                <ColumnDefinition Width="*"/>    <!-- Search Query TextBox -->
+                                <ColumnDefinition Width="Auto"/> <!-- Search Icon Button -->
+                                <ColumnDefinition Width="Auto"/> <!-- Drag Handle Stack -->
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Recent Searches Button & Popup -->
+                            <Button Grid.Column="0" x:Name="RecentSearchesButton" Click="RecentSearchesButton_Click"
+                                    Content="🕒 Recent" Background="#262A45" Foreground="#00E5FF" BorderBrush="#3B82F6" BorderThickness="1"
+                                    FontSize="10" FontWeight="Bold" Padding="6,3" Margin="0,0,6,0" Cursor="Hand" ToolTip="View recent scripture searches">
+                                <Button.Resources>
+                                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                                </Button.Resources>
+                            </Button>
+                            <Popup x:Name="RecentSearchesPopup" PlacementTarget="{Binding ElementName=RecentSearchesButton}" Placement="Top" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Slide">
+                                <Border Background="#131622" BorderBrush="#3B82F6" BorderThickness="1.5" CornerRadius="8" Padding="8" Width="220" MaxHeight="280">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#3B82F6" BlurRadius="15" ShadowDepth="2" Opacity="0.5"/>
+                                    </Border.Effect>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="🕒 Recent Scripture Searches" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
+                                        
+                                        <!-- Up Scroll Button -->
+                                        <Button Grid.Row="1" Click="RecentSearchesScrollUp_Click" Style="{StaticResource CyanScrollButtonStyle}" Content="&#xE70E;" Height="18" Margin="0,0,0,3" ToolTip="Scroll Up"/>
+                                        
+                                        <ScrollViewer Grid.Row="2" x:Name="RecentSearchesScrollViewer" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+                                            <ItemsControl ItemsSource="{Binding BibleSearch.SearchHistory}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Content="{Binding}" 
+                                                                Command="{Binding DataContext.BibleSearch.SelectHistoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                                CommandParameter="{Binding}" 
+                                                                Click="RecentSearchItem_Click"
+                                                                Background="Transparent" Foreground="#00E5FF" BorderThickness="0" 
+                                                                HorizontalAlignment="Left" Margin="0,3" Cursor="Hand" FontSize="11"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+
+                                        <!-- Down Scroll Button -->
+                                        <Button Grid.Row="3" Click="RecentSearchesScrollDown_Click" Style="{StaticResource CyanScrollButtonStyle}" Content="&#xE70D;" Height="18" Margin="0,3,0,0" ToolTip="Scroll Down"/>
+                                    </Grid>
+                                </Border>
+                            </Popup>
+
+                            <!-- Search TextBox -->
+                            <TextBox Grid.Column="1" x:Name="LeftCardSearchTextBox" 
+                                     Text="{Binding BibleSearch.SearchQuery, UpdateSourceTrigger=PropertyChanged}" 
+                                     Background="Transparent" Foreground="White" BorderThickness="0" FontSize="12" VerticalContentAlignment="Center">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding PerformScriptureSearchCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+
+                            <!-- Search Icon Button -->
+                            <Button Grid.Column="2" Command="{Binding PerformScriptureSearchCommand}" Content="🔍" 
+                                    Background="#007ACC" Foreground="White" BorderThickness="0" Width="28" Height="24" FontSize="11" Cursor="Hand" ToolTip="Search scripture reference or keyword"/>
+
+                            <!-- Bottom Right Drag Handle Stack for Left Card -->
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,0,0">
+                                <Thumb x:Name="LeftCardDragThumb" DragDelta="LeftCardDragThumb_DragDelta" Cursor="SizeNS"
+                                       Width="24" Height="24" Margin="0,0,2,0" ToolTip="Click and drag up/down to resize Left Card vertically">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Border Background="#1E293B" CornerRadius="4" Padding="2,1">
+                                                <TextBlock Text="⇕" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                                <Button Command="{Binding ToggleLeftCardExpandCommand}" 
+                                        Width="22" Height="24" Cursor="Hand" ToolTip="Expand / Collapse Left Card">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource NeonScrollButtonStyle}">
+                                            <Setter Property="Content" Value="&#xE70D;"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLeftCardExpanded}" Value="True">
+                                                    <Setter Property="Content" Value="&#xE70E;"/>
+                                                    <Setter Property="Foreground" Value="#00E5FF"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Column 2: Live Monitor Card Workspace (Column 2 - Gray Border) -->
+                <Border Grid.Column="2" Background="#131622" BorderBrush="#4A4D56" BorderThickness="1.5" CornerRadius="12" Margin="6">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#4A4D56" BlurRadius="15" ShadowDepth="0" Opacity="0.4"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!-- Card Header -->
+                        <Border Grid.Row="0" Background="#1A1C29" CornerRadius="10,10,0,0" Padding="12,10" BorderBrush="#26293B" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="🔴" FontSize="14" VerticalAlignment="Center"/>
+                                    <TextBlock Text="LIVE Output Monitor" Foreground="#00FFA3" FontSize="12" FontWeight="Bold" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Command="{Binding ToggleFullViewModeCommand}" Content="⛶ Full View" VerticalAlignment="Center" Background="#0284C7" Foreground="White" FontSize="11" FontWeight="Bold" BorderThickness="0" Padding="12,4" Cursor="Hand" ToolTip="Expand Live Monitor to Full View edge-to-edge mode with master controls"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <!-- Card Body (Monitor Viewport) -->
+                        <Grid Grid.Row="1" Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <Border Grid.Row="0" Background="#1E2235" CornerRadius="8,8,0,0" Padding="10,6" BorderBrush="#2D324F" BorderThickness="1,1,1,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding CurrentlyProjectedItem.Reference, FallbackValue='Live - No Active Item'}" Foreground="White" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="≡ Align:" Foreground="#00E5FF" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <ComboBox ItemsSource="{Binding TextAlignmentOptions}" SelectedItem="{Binding SelectedTextAlignmentOption, Mode=TwoWay}"
+                                                  Style="{StaticResource DarkComboBoxStyle}" Width="85" Height="24" FontSize="10" Margin="0,0,8,0" ToolTip="Set text alignment for live projected text (Left, Center, Right)"/>
+                                        <TextBlock Text="✂️ Split Lines:" Foreground="#00E5FF" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <ComboBox ItemsSource="{Binding LinesPerSplitOptions}" SelectedItem="{Binding SelectedLinesPerSplitOption, Mode=TwoWay}"
+                                                  Style="{StaticResource DarkComboBoxStyle}" Width="90" Height="24" FontSize="10" Margin="0,0,8,0" ToolTip="Split projected text into selected lines per slide (1 to 5 lines)"/>
+                                        <Button x:Name="LowerThirdPresetsButton" Content="🏷️ Presets Lower Thirds" Command="{Binding ToggleSavedLowerThirdsPopupCommand}" Background="#8B5CF6" Foreground="White" FontSize="10" FontWeight="Bold" BorderThickness="0" Padding="10,3" Margin="0,0,6,0" Cursor="Hand" ToolTip="Show saved preacher lower third presets"/>
+                                        <Popup IsOpen="{Binding IsSavedLowerThirdsPopupOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=LowerThirdPresetsButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Slide">
+                                            <Border Background="#131622" BorderBrush="#8B5CF6" BorderThickness="1.5" CornerRadius="10" Padding="12" Width="300" MaxHeight="350" Margin="0,4,0,0">
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="#8B5CF6" BlurRadius="18" ShadowDepth="4" Opacity="0.55"/>
+                                                </Border.Effect>
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Text="🏷️ Select Saved Preset to Project Live" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                                        <ItemsControl ItemsSource="{Binding SavedLowerThirds}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Background="#1E2235" BorderBrush="#2D324F" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,6" Cursor="Hand">
+                                                                        <Border.InputBindings>
+                                                                            <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.ProjectPresetAndClosePopupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
+                                                                        </Border.InputBindings>
+                                                                        <Grid>
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                                <ColumnDefinition Width="Auto"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <StackPanel Grid.Column="0">
+                                                                                <TextBlock Text="{Binding Name}" Foreground="#00E5FF" FontSize="11" FontWeight="Bold"/>
+                                                                                <TextBlock Text="{Binding Subtitle}" Foreground="#94A3B8" FontSize="9.5" Margin="0,1,0,0"/>
+                                                                            </StackPanel>
+                                                                            <TextBlock Grid.Column="1" Text="▶ Live" Foreground="#10B981" FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                                                                        </Grid>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </ScrollViewer>
+                                                </Grid>
+                                            </Border>
+                                        </Popup>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Row="1" CornerRadius="0,0,8,8" Padding="10" BorderBrush="#2D324F" BorderThickness="1,0,1,1" ClipToBounds="True">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="Black"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLowerThirds}" Value="True">
+                                                <Setter Property="Background" Value="#1A1C29"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <!-- Real-Time Hardware-Accelerated Live Window Mirror Viewport -->
+                                    <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Grid Width="1920" Height="1080" Background="Black">
+                                            <Rectangle x:Name="LiveCardViewport" Width="1920" Height="1080" Canvas.ZIndex="0" Cursor="SizeAll"
+                                                       MouseDown="LiveCardViewport_MouseDown" MouseMove="LiveCardViewport_MouseMove" MouseUp="LiveCardViewport_MouseUp" ToolTip="Click and drag anywhere on preview to move lower third live">
+                                                <Rectangle.Fill>
+                                                    <VisualBrush x:Name="LiveMonitorVisualBrush" Stretch="Fill" AlignmentX="Center" AlignmentY="Center" TileMode="None"/>
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                        </Grid>
+                                    </Viewbox>
+
+                                    <!-- Interactive Checkbox Line Editor Overlay -->
+                                    <Border Canvas.ZIndex="10" Background="#F20F172A" Padding="12" CornerRadius="8" Margin="10" VerticalAlignment="Stretch" Visibility="{Binding IsLiveLineEditMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="Select lines to display live on screen:" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                                <ItemsControl ItemsSource="{Binding LiveLineItems}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,4">
+                                                                <TextBlock Text="{Binding LineText}" Foreground="White" FontSize="11" TextWrapping="Wrap"/>
+                                                            </CheckBox>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                            <Button Grid.Row="2" Content="Done Editing" Command="{Binding ToggleLiveLineEditModeCommand}" Background="#10B981" Foreground="White" FontWeight="Bold" FontSize="10" BorderThickness="0" Padding="12,4" Margin="0,8,0,0" HorizontalAlignment="Right" Cursor="Hand"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- Bottom Right Drag Bar for Center Card -->
+                            <Border Grid.Row="2" Background="#1A1C29" CornerRadius="0,0,8,8" Padding="10,4" BorderBrush="#26293B" BorderThickness="1,0,1,1">
+                                <Grid>
+                                    <TextBlock Text="LIVE Viewport" Foreground="#64748B" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                    
+                                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Thumb x:Name="CenterCardDragThumb" DragDelta="CenterCardDragThumb_DragDelta" Cursor="SizeNS"
+                                               Width="24" Height="22" Margin="0,0,4,0" ToolTip="Click and drag up/down to resize Live Output Monitor vertically">
+                                            <Thumb.Template>
+                                                <ControlTemplate TargetType="Thumb">
+                                                    <Border Background="#1E293B" CornerRadius="4" Padding="2,1">
+                                                        <TextBlock Text="⇕" Foreground="#00FFA3" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Thumb.Template>
+                                        </Thumb>
+                                        <Button Command="{Binding ToggleCenterCardExpandCommand}" 
+                                                Width="22" Height="22" Cursor="Hand" ToolTip="Expand / Collapse Live Output Monitor Card">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource NeonScrollButtonStyle}">
+                                                    <Setter Property="Content" Value="&#xE70D;"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCenterCardExpanded}" Value="True">
+                                                            <Setter Property="Content" Value="&#xE70E;"/>
+                                                            <Setter Property="Foreground" Value="#00FFA3"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Column 4: Detail View & Verses Card (Emerald Green Glow - Gray Border) -->
+                <Border Grid.Column="4" Background="#131622" BorderBrush="#4A4D56" BorderThickness="1.5" CornerRadius="12" Margin="6" Visibility="{Binding IsFullViewMode, Converter={StaticResource InverseBoolToVis}}">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#4A4D56" BlurRadius="15" ShadowDepth="0" Opacity="0.45"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- Header -->
+                            <RowDefinition Height="*"/>    <!-- List Box -->
+                            <RowDefinition Height="Auto"/> <!-- Status Bar -->
+                        </Grid.RowDefinitions>
+                        <!-- Card Header -->
+                        <Border Grid.Row="0" Background="#1A1C29" CornerRadius="10,10,0,0" Padding="12,10" BorderBrush="#26293B" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📄" FontSize="14" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Detail / Selected Verses" Foreground="#10B981" FontSize="12" FontWeight="Bold" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <!-- Card Body -->
+                        <Grid Grid.Row="1" Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- Up Arrow -->
+                                <RowDefinition Height="*"/>    <!-- List Box -->
+                                <RowDefinition Height="Auto"/> <!-- Down Arrow -->
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Up Arrow Button -->
+                            <Button Grid.Row="0" Click="ScrollDetailedUp_Click" Style="{StaticResource NeonScrollButtonStyle}" Content="&#xE70E;" Foreground="#10B981" Margin="0,0,0,5"/>
+
+                            <!-- List Box -->
+                            <ListBox Grid.Row="1" x:Name="DetailedListBox" ItemsSource="{Binding DetailedContentItems}" SelectedItem="{Binding SelectedDetailedItem}" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#1E2235" BorderBrush="#2D324F" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,6" HorizontalAlignment="Stretch" Cursor="Hand">
+                                            <Border.InputBindings>
+                                                <MouseBinding MouseAction="LeftClick" 
+                                                              Command="{Binding DataContext.ProjectSpeechItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                              CommandParameter="{Binding}"/>
+                                            </Border.InputBindings>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Reference}" FontWeight="Bold" Foreground="#10B981" FontSize="11"/>
+                                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="#E2E8F0" FontSize="10" Margin="0,4,0,0" LineHeight="14"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="8" Margin="0,0,0,2">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter TargetName="Bd" Property="Background" Value="#115E59"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                            </ListBox>
+
+                            <!-- Down Arrow Button -->
+                            <Button Grid.Row="2" Click="ScrollDetailedDown_Click" Style="{StaticResource NeonScrollButtonStyle}" Content="&#xE70D;" Foreground="#10B981" Margin="0,5,0,0"/>
+                        </Grid>
+                        <!-- Status Bar & Bottom Right Drag Handle -->
+                        <Border Grid.Row="2" Background="#1A1C29" CornerRadius="0,0,10,10" Padding="12,6" BorderBrush="#26293B" BorderThickness="0,1,0,0">
+                            <Grid>
+                                <TextBlock Text="Click any verse to project live instantly" Foreground="#94A3B8" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                
+                                <!-- Bottom Right Drag Handle Stack for Right Card -->
+                                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Thumb x:Name="RightCardDragThumb" DragDelta="RightCardDragThumb_DragDelta" Cursor="SizeNS"
+                                           Width="24" Height="22" Margin="0,0,4,0" ToolTip="Click and drag up/down to resize Right Card vertically">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="#1E293B" CornerRadius="4" Padding="2,1">
+                                                    <TextBlock Text="⇕" Foreground="#10B981" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                    <Button Command="{Binding ToggleRightCardExpandCommand}" 
+                                            Width="22" Height="22" Cursor="Hand" ToolTip="Expand / Collapse Right Card">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource NeonScrollButtonStyle}">
+                                                <Setter Property="Content" Value="&#xE70D;"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsRightCardExpanded}" Value="True">
+                                                        <Setter Property="Content" Value="&#xE70E;"/>
+                                                        <Setter Property="Foreground" Value="#10B981"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Active Bible Translation Bar (Row 1 of Container) -->
+            <Border Grid.Row="1" Background="#0A0B13" BorderBrush="#1A1D2B" BorderThickness="0,1,0,0" Padding="15,8" Visibility="{Binding IsFullViewMode, Converter={StaticResource InverseBoolToVis}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>    <!-- Column 0: Under Left Card -->
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/> <!-- Column 2: Under Center Card -->
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/> <!-- Column 4: Under Right Card -->
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Left Side Translation Tabs (Shown in Column 0 when Left Card is NOT expanded) -->
+                    <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Margin="0,0,10,0"
+                                  Visibility="{Binding IsLeftCardExpanded, Converter={StaticResource InverseBoolToVis}}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="📖 Translation:" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            
+                            <ItemsControl ItemsSource="{Binding VisibleTranslationTabs}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding Abbreviation}" 
+                                                Command="{Binding DataContext.SelectTranslationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                CommandParameter="{Binding Abbreviation}" 
+                                                Margin="0,0,4,0" Padding="10,4" Cursor="Hand" ToolTip="{Binding Name}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#1E2235"/>
+                                                    <Setter Property="Foreground" Value="#94A3B8"/>
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Setter Property="BorderBrush" Value="#2D324F"/>
+                                                    <Setter Property="FontSize" Value="11"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                            <Setter Property="Background" Value="#00E5FF"/>
+                                                            <Setter Property="Foreground" Value="#0B1120"/>
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                            <Setter Property="BorderBrush" Value="#00E5FF"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- ">>>" Expand / Collapse Button -->
+                            <Button Command="{Binding ToggleTranslationTabsExpandedCommand}" 
+                                    Visibility="{Binding HasMoreTranslationTabs, Converter={StaticResource BoolToVis}}"
+                                    Margin="2,0,4,0" Padding="8,4" Cursor="Hand"
+                                    Background="#262A45" Foreground="#00E5FF" BorderBrush="#3B82F6" BorderThickness="1" ToolTip="Toggle view all installed Bible translation tabs">
+                                <Button.Resources>
+                                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                                </Button.Resources>
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Content" Value="&gt;&gt;&gt;"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTranslationTabsExpanded}" Value="True">
+                                                <Setter Property="Content" Value="&lt;&lt;&lt;"/>
+                                                <Setter Property="Background" Value="#3B82F6"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Center Area (Under Live Output Monitor): Relocated Tabs when Left Card is expanded -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <!-- Relocated Translation Tabs (Shown under Column 2 ONLY when Left Card IS expanded down) -->
+                        <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Margin="0,0,15,0"
+                                      Visibility="{Binding IsLeftCardExpanded, Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="📖 Translation:" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <ItemsControl ItemsSource="{Binding VisibleTranslationTabs}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Abbreviation}" 
+                                                    Command="{Binding DataContext.SelectTranslationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                    CommandParameter="{Binding Abbreviation}" 
+                                                    Margin="0,0,4,0" Padding="10,4" Cursor="Hand" ToolTip="{Binding Name}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Background" Value="#1E2235"/>
+                                                        <Setter Property="Foreground" Value="#94A3B8"/>
+                                                        <Setter Property="BorderThickness" Value="1"/>
+                                                        <Setter Property="BorderBrush" Value="#2D324F"/>
+                                                        <Setter Property="FontSize" Value="11"/>
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                <Setter Property="Background" Value="#00E5FF"/>
+                                                                <Setter Property="Foreground" Value="#0B1120"/>
+                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                <Setter Property="BorderBrush" Value="#00E5FF"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button Command="{Binding ToggleTranslationTabsExpandedCommand}" 
+                                        Visibility="{Binding HasMoreTranslationTabs, Converter={StaticResource BoolToVis}}"
+                                        Margin="2,0,4,0" Padding="8,4" Cursor="Hand"
+                                        Background="#262A45" Foreground="#00E5FF" BorderBrush="#3B82F6" BorderThickness="1" ToolTip="Toggle view all installed Bible translation tabs">
+                                    <Button.Resources>
+                                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                                    </Button.Resources>
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Content" Value="&gt;&gt;&gt;"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsTranslationTabsExpanded}" Value="True">
+                                                    <Setter Property="Content" Value="&lt;&lt;&lt;"/>
+                                                    <Setter Property="Background" Value="#3B82F6"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </StackPanel>
+
+                    <!-- Right Area (Under Right Card - Column 4): Lower Thirds Switch & Template Picker -->
+                    <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <CheckBox IsChecked="{Binding IsLowerThirds}" Style="{StaticResource LiquidToggleSwitchStyle}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="Lower Thirds Mode" Foreground="White" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+
+                        <!-- Scripture Lower Third Template Picker (Shown when IsLowerThirds is True) -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="{Binding IsLowerThirds, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="🎨 Template:" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            <ComboBox ItemsSource="{Binding ScriptureTemplates}" DisplayMemberPath="DisplayName" SelectedItem="{Binding SelectedScriptureOption, Mode=TwoWay}"
+                                      Style="{StaticResource DarkComboBoxStyle}" Width="160" Height="24" ToolTip="Select broadcast graphic style for Scripture Lower Thirds"/>
+                            <Button Command="{Binding OpenTemplateBuilderCommand}" CommandParameter="Scripture" Content="🎨 Studio" Background="#8B5CF6" Foreground="White" FontSize="11" FontWeight="Bold" Padding="8,3" Margin="6,0,0,0" BorderThickness="0" Cursor="Hand" ToolTip="Open Vector Lower Third Studio to create custom graphic templates">
+                                <Button.Resources>
+                                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Slide-Up Navigation Overlay Drawer Container (Slides UP over Main Workspace) -->
+        <Grid x:Name="SlideUpDrawerGrid" Grid.Row="2" Grid.RowSpan="2" Height="620" VerticalAlignment="Bottom" Panel.ZIndex="500" Visibility="Collapsed">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="DrawerTranslateTransform" Y="700"/>
+            </Grid.RenderTransform>
+            <Border Background="#131622" BorderBrush="#00E5FF" BorderThickness="1,2,1,0" CornerRadius="16,16,0,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="30" ShadowDepth="-8" Opacity="0.6"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Drawer Header Bar -->
+                        <RowDefinition Height="*"/>    <!-- Tab Content -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Drawer Header Bar -->
+                    <Border Grid.Row="0" Background="#1A1D2B" BorderBrush="#2D324F" BorderThickness="0,0,0,1" Padding="20,10" CornerRadius="16,16,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock x:Name="DrawerTitleTextBlock" Text="⚙️ Application Settings" Foreground="#00E5FF" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="1" Click="CollapseDrawer_Click" Content="⬇ Collapse Drawer" Background="#1E293B" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Padding="12,6" BorderThickness="1" BorderBrush="#334155" Cursor="Hand">
+                                <Button.Resources>
+                                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style>
+                                </Button.Resources>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- Active Tab Content Host -->
+                    <Grid Grid.Row="1">
+                        <TabControl x:Name="ResourcesTabControl" Background="#11131F" BorderThickness="0" Margin="0">
+                            <!-- Songs (Hymn Search) -->
+                            <TabItem Header="Songs" Style="{StaticResource ResourceTabItemStyle}">
+                                <Border Background="#11131F" Padding="10">
+                                    <ContentControl Content="{Binding HymnSearch}"/>
+                                </Border>
+                            </TabItem>
+
+
+
+
+
+                            <!-- Lower Thirds -->
+                            <TabItem Header="Lower Thirds" Style="{StaticResource ResourceTabItemStyle}">
+                                <Border Background="#11131F" Padding="12">
+                                    <!-- 2-SubTab Main Host Container (Matching Media & Backgrounds sub-tab structure) -->
+                                    <TabControl SelectedIndex="{Binding SelectedLowerThirdSubTabIndex, Mode=TwoWay}" Background="Transparent" BorderThickness="0">
+                                        <TabControl.Resources>
+                                            <Style TargetType="TabPanel">
+                                                <Setter Property="Margin" Value="0,0,0,10"/>
+                                            </Style>
+                                        </TabControl.Resources>
+
+                                        <!-- SUB-TAB 1: 👤 Speaker Lower Thirds -->
+                                        <TabItem Header="👤 Speaker Lower Thirds" Style="{StaticResource SubTabItemStyle}">
+                                            <Grid Margin="0,8,0,0">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/> <!-- Quick Action Bar -->
+                                                    <RowDefinition Height="*"/>    <!-- Lower Third Editor & Presets -->
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Quick Action Bar -->
+                                                <Border Grid.Row="0" Background="#131622" BorderBrush="#262A45" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,12">
+                                                    <Grid>
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="Preacher, Pastor &amp; Speaker Customizer Studio:" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                            <Button Content="🎨 Open Customizer Studio" Command="{Binding OpenSpeakerLowerThirdStudioCommand}" Background="#00E5FF" Foreground="#0B1120" FontSize="11" FontWeight="Bold" Padding="12,5" Height="26" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0"/>
+                                                            <Button Content="➕ Create Vector Template" Command="{Binding OpenTemplateBuilderCommand}" CommandParameter="Speaker" Background="#8B5CF6" Foreground="White" FontSize="11" FontWeight="Bold" Padding="12,5" Height="26" BorderThickness="0" Cursor="Hand"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+
+                                                <!-- Lower Third Quick Editor & Saved Library -->
+                                                <Grid Grid.Row="1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="1.3*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="1*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Left Column: Live Customizer -->
+                                                    <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="0,0,12,0">
+                                                        <StackPanel Orientation="Vertical">
+                                                            <TextBlock Text="Live Lower Third Content" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
+
+                                                            <!-- Tag Input -->
+                                                            <TextBlock Text="Tag / Category (e.g. SPEAKER, KEYNOTE, NOTICE):" Foreground="#E2E8F0" FontSize="10.5" Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding LowerThirdTagText, UpdateSourceTrigger=PropertyChanged}" Background="#1E2235" Foreground="White" BorderBrush="#2D324F" BorderThickness="1" Padding="6,4" FontSize="11" Margin="0,0,0,8"/>
+
+                                                            <!-- Headline/Title Input -->
+                                                            <TextBlock Text="Main Headline / Name:" Foreground="#E2E8F0" FontSize="10.5" Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding LowerThirdTitle, UpdateSourceTrigger=PropertyChanged}" Background="#1E2235" Foreground="White" BorderBrush="#2D324F" BorderThickness="1" Padding="6,4" FontSize="12" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                                                            <!-- Subtitle Input -->
+                                                            <TextBlock Text="Subtitle / Role Designation:" Foreground="#E2E8F0" FontSize="10.5" Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding LowerThirdSubtitle, UpdateSourceTrigger=PropertyChanged}" Background="#1E2235" Foreground="White" BorderBrush="#2D324F" BorderThickness="1" Padding="6,4" FontSize="11" Margin="0,0,0,10"/>
+
+                                                            <!-- Style Picker -->
+                                                            <TextBlock Text="Choose Graphic Style Template:" Foreground="#94A3B8" FontSize="10.5" FontWeight="Bold" Margin="0,0,0,6"/>
+                                                            <UniformGrid Columns="2" Margin="0,0,0,10">
+                                                                <Button Content="🔷 Blue Angular" Command="{Binding SelectLowerThirdStyleCommand}" CommandParameter="BlueAngular" Background="#1E293B" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="8,6" Margin="0,0,3,3" BorderThickness="1" BorderBrush="#3B82F6" Cursor="Hand"/>
+                                                                <Button Content="🟡 Gold Badge" Command="{Binding SelectLowerThirdStyleCommand}" CommandParameter="GoldBadge" Background="#1E293B" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="8,6" Margin="3,0,0,3" BorderThickness="1" BorderBrush="#F59E0B" Cursor="Hand"/>
+                                                                <Button Content="🟣 Cyberpunk Purple" Command="{Binding SelectLowerThirdStyleCommand}" CommandParameter="CyberpunkPurple" Background="#1E293B" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="8,6" Margin="0,3,3,0" BorderThickness="1" BorderBrush="#8B5CF6" Cursor="Hand"/>
+                                                                <Button Content="🛡️ Classic Slate" Command="{Binding SelectLowerThirdStyleCommand}" CommandParameter="ClassicNavy" Background="#1E293B" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="8,6" Margin="3,3,0,0" BorderThickness="1" BorderBrush="#00E5FF" Cursor="Hand"/>
+                                                            </UniformGrid>
+
+                                                            <!-- Position Selector -->
+                                                            <TextBlock Text="Screen Positioning:" Foreground="#94A3B8" FontSize="10.5" FontWeight="Bold" Margin="0,0,0,6"/>
+                                                            <UniformGrid Columns="4" Margin="0,0,0,12">
+                                                                <Button Content="↙ Bottom L" Command="{Binding SelectLowerThirdPositionCommand}" CommandParameter="BottomLeft" Background="#1E2235" Foreground="#E2E8F0" FontSize="9.5" Padding="4,4" Margin="0,0,2,0" Cursor="Hand"/>
+                                                                <Button Content="⬇ Bottom C" Command="{Binding SelectLowerThirdPositionCommand}" CommandParameter="BottomCenter" Background="#1E2235" Foreground="#E2E8F0" FontSize="9.5" Padding="4,4" Margin="2,0,2,0" Cursor="Hand"/>
+                                                                <Button Content="↘ Bottom R" Command="{Binding SelectLowerThirdPositionCommand}" CommandParameter="BottomRight" Background="#1E2235" Foreground="#E2E8F0" FontSize="9.5" Padding="4,4" Margin="2,0,2,0" Cursor="Hand"/>
+                                                                <Button Content="↖ Top Left" Command="{Binding SelectLowerThirdPositionCommand}" CommandParameter="TopLeft" Background="#1E2235" Foreground="#E2E8F0" FontSize="9.5" Padding="4,4" Margin="2,0,0,0" Cursor="Hand"/>
+                                                            </UniformGrid>
+
+                                                            <!-- Action Buttons -->
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Button Grid.Column="0" Content="{Binding SendLowerThirdButtonText}" Command="{Binding SendLowerThirdLiveCommand}" Background="#10B981" Foreground="White" FontWeight="Bold" FontSize="10.5" Padding="8,6" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0"/>
+                                                                <Button Grid.Column="1" Content="🚫 Hide Lower Third" Command="{Binding HideLowerThirdCommand}" Background="#EF4444" Foreground="White" FontWeight="Bold" FontSize="10.5" Padding="8,6" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0"/>
+                                                                <Button Grid.Column="2" Content="{Binding SaveLowerThirdButtonText}" Command="{Binding SaveLowerThirdPresetCommand}" Background="#3B82F6" Foreground="White" FontWeight="Bold" FontSize="10.5" Padding="8,6" BorderThickness="0" Cursor="Hand"/>
+                                                            </Grid>
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+
+                                                    <!-- Splitter -->
+                                                    <Rectangle Grid.Column="1" Width="1" Fill="#2D324F" Margin="0,0,12,0"/>
+
+                                                    <!-- Right Column: Saved Presets & Custom Vector Templates -->
+                                                    <Grid Grid.Column="2">
+                                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                            <StackPanel Orientation="Vertical">
+                                                                <!-- Custom Vector Templates (Speaker) -->
+                                                                <TextBlock Text="🎨 Custom Vector Templates" Foreground="#8B5CF6" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
+                                                                <ItemsControl ItemsSource="{Binding CustomSpeakerTemplates}" Margin="0,0,0,12">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <Border Background="#161A2B" BorderBrush="#8B5CF6" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,6">
+                                                                                <Grid>
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="*"/>
+                                                                                        <ColumnDefinition Width="Auto"/>
+                                                                                        <ColumnDefinition Width="Auto"/>
+                                                                                        <ColumnDefinition Width="Auto"/>
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <StackPanel Grid.Column="0">
+                                                                                        <TextBlock Text="{Binding Name}" Foreground="#C084FC" FontSize="11" FontWeight="Bold"/>
+                                                                                        <TextBlock Text="Vector Graphic Template" Foreground="#94A3B8" FontSize="9.5" Margin="0,1,0,0"/>
+                                                                                    </StackPanel>
+                                                                                    <Button Grid.Column="1" Content="▶ Live" Command="{Binding DataContext.ProjectCustomSpeakerTemplateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#10B981" Foreground="White" FontSize="9.5" FontWeight="Bold" Padding="6,3" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0"/>
+                                                                                    <Button Grid.Column="2" Content="✏️" Command="{Binding DataContext.EditCustomSpeakerTemplateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#3B82F6" Foreground="White" FontSize="9.5" Padding="5,3" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0" ToolTip="Edit template, shapes and text in Vector Studio"/>
+                                                                                    <Button Grid.Column="3" Content="🗑️" Command="{Binding DataContext.DeleteCustomSpeakerTemplateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#EF4444" Foreground="White" FontSize="9.5" Padding="5,3" BorderThickness="0" Cursor="Hand"/>
+                                                                                </Grid>
+                                                                            </Border>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+
+                                                                <!-- Saved Presets Library -->
+                                                                <TextBlock Text="🏷️ Saved Presets Library" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
+                                                                <ItemsControl ItemsSource="{Binding SavedLowerThirds}">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <Border Background="#1E2235" BorderBrush="#2D324F" BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,6">
+                                                                                <Grid>
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="*"/>
+                                                                                        <ColumnDefinition Width="Auto"/>
+                                                                                        <ColumnDefinition Width="Auto"/>
+                                                                                        <ColumnDefinition Width="Auto"/>
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <StackPanel Grid.Column="0">
+                                                                                        <TextBlock Text="{Binding Name}" Foreground="#00E5FF" FontSize="11" FontWeight="Bold"/>
+                                                                                        <TextBlock Text="{Binding Subtitle}" Foreground="#94A3B8" FontSize="9.5" Margin="0,1,0,0"/>
+                                                                                    </StackPanel>
+                                                                                    <Button Grid.Column="1" Content="▶ Live" Command="{Binding DataContext.ProjectSavedLowerThirdCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#10B981" Foreground="White" FontSize="9.5" FontWeight="Bold" Padding="6,3" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0"/>
+                                                                                    <Button Grid.Column="2" Content="✏️" Command="{Binding DataContext.EditSavedLowerThirdCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#3B82F6" Foreground="White" FontSize="9.5" Padding="5,3" BorderThickness="0" Cursor="Hand" Margin="0,0,4,0" ToolTip="Edit in Customizer Studio"/>
+                                                                                    <Button Grid.Column="3" Content="🗑️" Command="{Binding DataContext.DeleteSavedLowerThirdCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#EF4444" Foreground="White" FontSize="9.5" Padding="5,3" BorderThickness="0" Cursor="Hand"/>
+                                                                                </Grid>
+                                                                            </Border>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                            </StackPanel>
+                                                        </ScrollViewer>
+                                                    </Grid>
+                                                </Grid>
+                                            </Grid>
+                                        </TabItem>
+
+                                        <!-- SUB-TAB 2: 📖 Scripture Lower Thirds -->
+                                        <TabItem Header="📖 Scripture Lower Thirds" Style="{StaticResource SubTabItemStyle}">
+                                            <Grid Margin="0,8,0,0">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/> <!-- Quick Action Bar -->
+                                                    <RowDefinition Height="*"/>    <!-- Scripture Templates Cards Grid -->
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Quick Action Bar -->
+                                                <Border Grid.Row="0" Background="#131622" BorderBrush="#262A45" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,12">
+                                                    <Grid>
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="Vector Graphic Lower Third Studio for Bible Scriptures:" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                        </StackPanel>
+                                                        <Button HorizontalAlignment="Right" Content="🎨 Create Vector Scripture Template" Command="{Binding OpenTemplateBuilderCommand}" CommandParameter="Scripture" 
+                                                                Background="#8B5CF6" Foreground="White" FontSize="11" FontWeight="Bold" Padding="14,5" Height="26" BorderThickness="0" Cursor="Hand"/>
+                                                    </Grid>
+                                                </Border>
+
+                                                <!-- Scripture Vector Templates Cards Grid -->
+                                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                                    <ItemsControl ItemsSource="{Binding ScriptureTemplates}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Width="220" Margin="0,0,12,12" Background="#131622" BorderBrush="#262A45" BorderThickness="1" CornerRadius="8" Padding="10">
+                                                                    <Grid>
+                                                                        <Grid.RowDefinitions>
+                                                                            <RowDefinition Height="90"/>
+                                                                            <RowDefinition Height="Auto"/>
+                                                                            <RowDefinition Height="Auto"/>
+                                                                        </Grid.RowDefinitions>
+
+                                                                        <!-- Style Preview Box -->
+                                                                        <Border Grid.Row="0" Background="#0A0B13" CornerRadius="6" ClipToBounds="True" Padding="6">
+                                                                            <Grid>
+                                                                                <TextBlock Text="{Binding DisplayName}" Foreground="#00E5FF" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                                                            </Grid>
+                                                                        </Border>
+
+                                                                        <!-- Title & Description -->
+                                                                        <StackPanel Grid.Row="1" Margin="0,8,0,8">
+                                                                            <TextBlock Text="{Binding DisplayName}" Foreground="White" FontSize="11.5" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                                                                            <TextBlock Text="Scripture Vector Template" Foreground="#64748B" FontSize="10" Margin="0,1,0,0"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Action Button -->
+                                                                        <Button Grid.Row="2" Content="▶ Select &amp; Use" Command="{Binding DataContext.SelectScriptureOptionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#2563EB" Foreground="White" FontSize="10" FontWeight="Bold" Padding="8,5" BorderThickness="0" Cursor="Hand"/>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
+                                            </Grid>
+                                        </TabItem>
+                                    </TabControl>
+                                </Border>
+                            </TabItem>
+
+                            <!-- Media -->
+                            <TabItem Header="Media &amp; Backgrounds" Style="{StaticResource ResourceTabItemStyle}">
+                                <Border Background="#11131F" Padding="10">
+                                    <ContentControl Content="{Binding Media}"/>
+                                </Border>
+                            </TabItem>
+
+
+
+                            <!-- Settings -->
+                            <TabItem Header="Settings" Style="{StaticResource ResourceTabItemStyle}">
+                                <ScrollViewer Background="#11131F" VerticalScrollBarVisibility="Auto" Padding="10">
+                                    <ContentControl Content="{Binding Settings}"/>
+                                </ScrollViewer>
+                            </TabItem>
+                        </TabControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+
+
+        <!-- Row 3: Modern Bottom Navigation Bar -->
+        <Border Grid.Row="3" Background="#0A0B13" BorderBrush="#1E293B" BorderThickness="0,1,0,0" Padding="20,12,20,18" Panel.ZIndex="600">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Navigation Tabs Stack -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="BtnNavSongs" Click="NavButton_Click" Tag="0|🎵 Hymns &amp; Worship Songs" Style="{StaticResource BottomNavButtonStyle}" BorderBrush="#94A3B8">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="RingNavSongs" Width="24" Height="24" CornerRadius="12" BorderBrush="#94A3B8" BorderThickness="1.5" Background="Transparent" Margin="0,0,8,0">
+                                <TextBlock Text="🎵" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Songs" Foreground="#E2E8F0" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BtnNavLowerThirds" Click="NavButton_Click" Tag="1|🏷️ Lower Thirds Studio &amp; Overlays" Style="{StaticResource BottomNavButtonStyle}" BorderBrush="#94A3B8">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="RingNavLowerThirds" Width="24" Height="24" CornerRadius="12" BorderBrush="#94A3B8" BorderThickness="1.5" Background="Transparent" Margin="0,0,8,0">
+                                <TextBlock Text="👤" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Lower Thirds" Foreground="#E2E8F0" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BtnNavMedia" Click="NavButton_Click" Tag="2|🖼️ Media Library &amp; Backgrounds" Style="{StaticResource BottomNavButtonStyle}" BorderBrush="#94A3B8">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="RingNavMedia" Width="24" Height="24" CornerRadius="12" BorderBrush="#94A3B8" BorderThickness="1.5" Background="Transparent" Margin="0,0,8,0">
+                                <TextBlock Text="🖼️" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Media" Foreground="#E2E8F0" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BtnNavSettings" Click="NavButton_Click" Tag="3|⚙️ Application Settings" Style="{StaticResource BottomNavButtonStyle}" BorderBrush="#94A3B8">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="RingNavSettings" Width="24" Height="24" CornerRadius="12" BorderBrush="#94A3B8" BorderThickness="1.5" Background="Transparent" Margin="0,0,8,0">
+                                <TextBlock Text="⚙️" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Settings" Foreground="#E2E8F0" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Status Badge -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#10B981" CornerRadius="12" Padding="10,4">
+                        <TextBlock Text="● LIVE SYSTEM READY" Foreground="White" FontSize="10" FontWeight="ExtraBold"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Custom Hymn Modal Popup Overlay -->
+        <Grid Grid.Row="0" Grid.RowSpan="5" Background="#AA000000" Visibility="{Binding IsCustomHymnPopupOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#1A1C29" BorderBrush="#8B5CF6" BorderThickness="1.5" CornerRadius="12" Width="500" Height="450" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20">
+                <Border.Effect>
+                    <DropShadowEffect Color="#8B5CF6" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Header -->
+                        <RowDefinition Height="Auto"/> <!-- Title Input -->
+                        <RowDefinition Height="*"/>    <!-- Lyrics Input -->
+                        <RowDefinition Height="Auto"/> <!-- Buttons -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock Text="Type or Paste Custom Hymn" Foreground="#8B5CF6" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Button Content="&#xE711;" FontFamily="Segoe Fluent Icons" FontSize="12" Command="{Binding CloseCustomHymnPopupCommand}" Background="Transparent" Foreground="#94A3B8" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Center" Cursor="Hand"/>
+                    </Grid>
+
+                    <!-- Title -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,15">
+                        <TextBlock Text="Hymn Title" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <Border Background="#131622" BorderBrush="#3A3D46" BorderThickness="1" CornerRadius="4" Padding="8,4">
+                            <TextBox Text="{Binding CustomLyricsTitle, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" Foreground="White" BorderThickness="0" FontSize="12"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Lyrics -->
+                    <Grid Grid.Row="2" Margin="0,0,0,15">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,5">
+                            <TextBlock Text="Hymn Lyrics" Foreground="#94A3B8" FontSize="11" FontWeight="Bold"/>
+                            <TextBlock Text="Separate verses by leaving an empty line between them." Foreground="#64748B" FontSize="10" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <Border Grid.Row="1" Background="#131622" BorderBrush="#3A3D46" BorderThickness="1" CornerRadius="4" Padding="8">
+                            <TextBox Text="{Binding CustomLyricsText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Background="Transparent" Foreground="White" BorderThickness="0" FontSize="12" VerticalScrollBarVisibility="Auto"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Buttons -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Command="{Binding CloseCustomHymnPopupCommand}" Background="Transparent" Foreground="#94A3B8" BorderThickness="1" BorderBrush="#3A3D46" Padding="15,8" Cursor="Hand" Margin="0,0,10,0"/>
+                        <Button Content="Project Hymn" Command="{Binding ProjectCustomLyricsCommand}" Background="#8B5CF6" Foreground="White" FontWeight="Bold" Padding="20,8" BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Incoming Community Message Popup Overlay -->
+        <Grid Grid.Row="0" Grid.RowSpan="5" Background="#AA000000" Visibility="{Binding IsCommunityMessagePopupOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#1A1C29" BorderBrush="{Binding CurrentMessageTagColor}" BorderThickness="1.5" CornerRadius="12" Width="480" Height="280" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="25">
+                <Border.Effect>
+                    <DropShadowEffect Color="{Binding CurrentMessageTagColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Header / Priority -->
+                        <RowDefinition Height="*"/>    <!-- Message Text -->
+                        <RowDefinition Height="Auto"/> <!-- Action Buttons -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Title & Tag -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                        <TextBlock Text="&#xE715;" FontFamily="Segoe Fluent Icons" Foreground="#00E5FF" FontSize="18" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding CurrentMessageHeader}" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Border Background="{Binding CurrentMessageTagColor}" CornerRadius="3" Padding="8,3" Margin="15,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentMessageTagLabel}" Foreground="Black" FontSize="9" FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Message Text -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,20">
+                        <TextBlock Text="{Binding CurrentMessageText}" Foreground="#F8FAFC" FontSize="13" TextWrapping="Wrap" LineHeight="18"/>
+                    </ScrollViewer>
+
+                    <!-- Action Buttons -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Project Now" Command="{Binding ProjectIncomingMessageCommand}" Background="#EF4444" Foreground="White" FontWeight="Bold" FontSize="11" Padding="12,8" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0"/>
+                        <Button Grid.Column="1" Content="Add to Schedule" Command="{Binding AddIncomingMessageToScheduleCommand}" Background="#10B981" Foreground="White" FontWeight="Bold" FontSize="11" Padding="12,8" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0"/>
+                        <Button Grid.Column="2" Content="Discard" Command="{Binding DiscardIncomingMessageCommand}" Background="#475569" Foreground="White" FontSize="11" Padding="12,8" BorderThickness="0" Cursor="Hand"/>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Lower Thirds Studio Modal Popup -->
+        <Grid Grid.RowSpan="5" Background="#CC090D16" Visibility="{Binding IsLowerThirdModalOpen, Converter={StaticResource BooleanToVisibilityConverter}}" Canvas.ZIndex="1000">
+            <Border Background="#131622" BorderBrush="#8B5CF6" BorderThickness="1.5" CornerRadius="14" Width="860" Height="620" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="20">
+                <Border.Effect>
+                    <DropShadowEffect Color="#8B5CF6" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Header Bar -->
+                        <RowDefinition Height="Auto"/> <!-- Studio Division Bar -->
+                        <RowDefinition Height="*"/>    <!-- Body Content -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Header Bar -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="🏷️" FontSize="18" VerticalAlignment="Center"/>
+                            <TextBlock Text="Lower Thirds Studio &amp; Real-Time Broadcast Overlays" Foreground="#00E5FF" FontSize="16" FontWeight="Bold" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button Content="✕" Command="{Binding CloseLowerThirdModalCommand}" Background="Transparent" Foreground="#94A3B8" FontSize="16" FontWeight="Bold" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Center" Cursor="Hand"/>
+                    </Grid>
+
+                    <!-- Studio Division Bar (Speaker Lower Thirds vs Scripture Lower Thirds) -->
+                    <Border Grid.Row="1" Margin="0,0,0,12" Background="#0B0C16" BorderBrush="#2D324F" BorderThickness="1" CornerRadius="10" Padding="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Option 1: Speaker Lower Thirds Studio -->
+                            <Border Grid.Column="0" Background="#161A2B" BorderBrush="#00E5FF" BorderThickness="1.5" CornerRadius="8" Padding="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
+                                        <TextBlock Text="👤 Speaker Lower Thirds" Foreground="#00E5FF" FontSize="12.5" FontWeight="Bold"/>
+                                        <TextBlock Text="Preacher, Pastor &amp; Speaker Color &amp; Text Studio" Foreground="#94A3B8" FontSize="9.5" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="🎨 Preacher Studio" Command="{Binding OpenSpeakerLowerThirdStudioCommand}" Background="#00E5FF" Foreground="#0B1120" FontSize="10.5" FontWeight="Bold" Padding="10,5" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Option 2: Scripture Lower Thirds Studio -->
+                            <Border Grid.Column="2" Background="#161A2B" BorderBrush="#8B5CF6" BorderThickness="1.5" CornerRadius="8" Padding="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
+                                        <TextBlock Text="📖 Scripture Lower Thirds" Foreground="#C084FC" FontSize="12.5" FontWeight="Bold"/>
+                                        <TextBlock Text="Vector Graphic Lower Third Studio for Bible Scriptures" Foreground="#94A3B8" FontSize="9.5" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="🎨 Vector Studio" Command="{Binding OpenTemplateBuilderCommand}" CommandParameter="Scripture" Background="#8B5CF6" Foreground="White" FontSize="10.5" FontWeight="Bold" Padding="10,5" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Body: 2 Column Layout -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.3*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left Column: Live Customizer -->
+                        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="0,0,15,0">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Live Lower Third Content" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                                <!-- Tag Input -->
+                                <TextBlock Text="Tag / Category (e.g. SPEAKER, KEYNOTE, NOTICE):" Foreground="#E2E8F0" FontSize="11" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding LowerThirdTagText, UpdateSourceTrigger=PropertyChanged}" Background="#1E2235" Foreground="White" BorderBrush="#2D324F" BorderThickness="1" Padding="8,6" FontSize="12" Margin="0,0,0,10"/>
+
+                                <!-- Headline/Title Input -->
+                                <TextBlock Text="Main Headline / Name:" Foreground="#E2E8F0" FontSize="11" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding LowerThirdTitle, UpdateSourceTrigger=PropertyChanged}" Background="#1E2235" Foreground="White" BorderBrush="#2D324F" BorderThickness="1" Padding="8,6" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                                <!-- Subtitle Input -->
+                                <TextBlock Text="Subtitle / Role Designation:" Foreground="#E2E8F0" FontSize="11" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding LowerThirdSubtitle, UpdateSourceTrigger=PropertyChanged}" Background="#1E2235" Foreground="White" BorderBrush="#2D324F" BorderThickness="1" Padding="8,6" FontSize="12" Margin="0,0,0,12"/>
+
+                                <!-- Color Customization Panel -->
+                                <Expander Header="🎨 Custom Container &amp; Text Colors" Foreground="#00E5FF" FontWeight="Bold" FontSize="11" Margin="0,0,0,15">
+                                    <Border Background="#1A1D2B" BorderBrush="#2D324F" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,5,0,0">
+                                        <StackPanel Orientation="Vertical">
+                                            <!-- Tag Badge Colors -->
+                                            <TextBlock Text="🏷️ Tag Badge (Container &amp; Text):" Foreground="#38BDF8" FontSize="10.5" FontWeight="Bold" Margin="0,0,0,4"/>
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                                    <TextBlock Text="Background (Hex):" Foreground="#94A3B8" FontSize="10"/>
+                                                    <TextBox Text="{Binding LowerThirdTagBgColor, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" Padding="4" FontSize="11"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                                                    <TextBlock Text="Text Color (Hex):" Foreground="#94A3B8" FontSize="10"/>
+                                                    <TextBox Text="{Binding LowerThirdTagTextColor, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" Padding="4" FontSize="11"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Preacher Name Colors -->
+                                            <TextBlock Text="👤 Preacher Name (Container &amp; Text):" Foreground="#38BDF8" FontSize="10.5" FontWeight="Bold" Margin="0,4,0,4"/>
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                                    <TextBlock Text="Background (Hex):" Foreground="#94A3B8" FontSize="10"/>
+                                                    <TextBox Text="{Binding LowerThirdTitleBgColor, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" Padding="4" FontSize="11"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                                                    <TextBlock Text="Text Color (Hex):" Foreground="#94A3B8" FontSize="10"/>
+                                                    <TextBox Text="{Binding LowerThirdTitleTextColor, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" Padding="4" FontSize="11"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Subtitle / Designation Colors -->
+                                            <TextBlock Text="📜 Subtitle / Theme (Container &amp; Text):" Foreground="#38BDF8" FontSize="10.5" FontWeight="Bold" Margin="0,4,0,4"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                                    <TextBlock Text="Background (Hex):" Foreground="#94A3B8" FontSize="10"/>
+                                                    <TextBox Text="{Binding LowerThirdSubBgColor, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" Padding="4" FontSize="11"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                                                    <TextBlock Text="Text Color (Hex):" Foreground="#94A3B8" FontSize="10"/>
+                                                    <TextBox Text="{Binding LowerThirdSubTextColor, UpdateSourceTrigger=PropertyChanged}" Background="#0F172A" Foreground="White" Padding="4" FontSize="11"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </Expander>
+
+                                <!-- Style Picker -->
+                                <TextBlock Text="Choose Graphic Style Template:" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <UniformGrid Columns="2" Margin="0,0,0,15">
+                                    <Button Content="🔷 Blue Angular" Command="{Binding SelectLowerThirdStyleCommand}" CommandParameter="BlueAngular" Background="#1E293B" Foreground="White" FontSize="11" FontWeight="Bold" Padding="10,8" Margin="0,0,4,4" BorderThickness="1" BorderBrush="#3B82F6" Cursor="Hand"/>
+                                    <Button Content="🟡 Gold Badge" Command="{Binding SelectLowerThirdStyleCommand}" CommandParameter="GoldBadge" Background="#1E293B" Foreground="White" FontSize="11" FontWeight="Bold" Padding="10,8" Margin="4,0,0,4" BorderThickness="1" BorderBrush="#F59E0B" Cursor="Hand"/>
+                                    <Button Content="🟣 Cyberpunk Purple" Command="{Binding SelectLowerThirdStyleCommand}" CommandParameter="CyberpunkPurple" Background="#1E293B" Foreground="White" FontSize="11" FontWeight="Bold" Padding="10,8" Margin="0,4,4,0" BorderThickness="1" BorderBrush="#8B5CF6" Cursor="Hand"/>
+                                    <Button Content="🛡️ Classic Slate" Command="{Binding SelectLowerThirdStyleCommand}" CommandParameter="ClassicNavy" Background="#1E293B" Foreground="White" FontSize="11" FontWeight="Bold" Padding="10,8" Margin="4,4,0,0" BorderThickness="1" BorderBrush="#00E5FF" Cursor="Hand"/>
+                                </UniformGrid>
+
+                                <!-- Position Selector -->
+                                <TextBlock Text="Screen Positioning:" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <UniformGrid Columns="4" Margin="0,0,0,20">
+                                    <Button Content="↙ Bottom L" Command="{Binding SelectLowerThirdPositionCommand}" CommandParameter="BottomLeft" Background="#1E2235" Foreground="#E2E8F0" FontSize="10" Padding="6,6" Margin="0,0,2,0" Cursor="Hand"/>
+                                    <Button Content="⬇ Bottom C" Command="{Binding SelectLowerThirdPositionCommand}" CommandParameter="BottomCenter" Background="#1E2235" Foreground="#E2E8F0" FontSize="10" Padding="6,6" Margin="2,0,2,0" Cursor="Hand"/>
+                                    <Button Content="↘ Bottom R" Command="{Binding SelectLowerThirdPositionCommand}" CommandParameter="BottomRight" Background="#1E2235" Foreground="#E2E8F0" FontSize="10" Padding="6,6" Margin="2,0,2,0" Cursor="Hand"/>
+                                    <Button Content="↖ Top Left" Command="{Binding SelectLowerThirdPositionCommand}" CommandParameter="TopLeft" Background="#1E2235" Foreground="#E2E8F0" FontSize="10" Padding="6,6" Margin="2,0,0,0" Cursor="Hand"/>
+                                </UniformGrid>
+
+                                <!-- Action Buttons -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Content="{Binding SendLowerThirdButtonText}" Command="{Binding SendLowerThirdLiveCommand}" Background="#10B981" Foreground="White" FontWeight="Bold" FontSize="11" Padding="12,10" BorderThickness="0" Cursor="Hand" Margin="0,0,6,0"/>
+                                    <Button Grid.Column="1" Content="🚫 Hide Lower Third" Command="{Binding HideLowerThirdCommand}" Background="#EF4444" Foreground="White" FontWeight="Bold" FontSize="11" Padding="12,10" BorderThickness="0" Cursor="Hand" Margin="0,0,6,0"/>
+                                    <Button Grid.Column="2" Content="{Binding SaveLowerThirdButtonText}" Command="{Binding SaveLowerThirdPresetCommand}" Background="#3B82F6" Foreground="White" FontWeight="Bold" FontSize="11" Padding="12,10" BorderThickness="0" Cursor="Hand"/>
+                                </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Splitter -->
+                        <Rectangle Grid.Column="1" Width="1" Fill="#2D324F" Margin="0,0,15,0"/>
+
+                        <!-- Right Column: Saved Presets Library -->
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Saved Presets Library" Foreground="#94A3B8" FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <ListBox Grid.Row="1" ItemsSource="{Binding SavedLowerThirds}" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#1E2235" BorderBrush="#2D324F" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Name}" Foreground="#00E5FF" FontSize="12" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding Subtitle}" Foreground="#94A3B8" FontSize="10" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                                <Button Grid.Column="1" Content="▶ Live" Command="{Binding DataContext.ProjectSavedLowerThirdCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#10B981" Foreground="White" FontSize="10" FontWeight="Bold" Padding="8,4" BorderThickness="0" Cursor="Hand" Margin="0,0,6,0"/>
+                                                <Button Grid.Column="2" Content="🗑️" Command="{Binding DataContext.DeleteSavedLowerThirdCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#EF4444" Foreground="White" FontSize="10" Padding="6,4" BorderThickness="0" Cursor="Hand"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Exact 1:1 Edge-to-Edge Full-Screen Output Replica Overlay (Covers Entire App Window) -->
+        <Grid Grid.Row="0" Grid.RowSpan="5" Panel.ZIndex="9999" Visibility="{Binding IsFullViewMode, Converter={StaticResource BoolToVis}}" Background="Black">
+            <!-- Exact Edge-to-Edge Centered 16:9 Projection Stage -->
+            <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Width="1920" Height="1080" Background="Black">
+                    <Rectangle x:Name="FullViewEdgeToEdgeViewport" Width="1920" Height="1080" Cursor="SizeAll"
+                               MouseDown="LiveCardViewport_MouseDown" MouseMove="LiveCardViewport_MouseMove" MouseUp="LiveCardViewport_MouseUp" ToolTip="Click &amp; drag anywhere to move lower third live">
+                        <Rectangle.Fill>
+                            <VisualBrush x:Name="FullViewVisualBrush" Stretch="Fill" AlignmentX="Center" AlignmentY="Center" TileMode="None"/>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </Grid>
+            </Viewbox>
+
+            <!-- Floating Master Control Overlay (Top Right) -->
+            <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="25" Padding="10,8" Background="#DC0F172A" BorderBrush="#3B82F6" BorderThickness="1" CornerRadius="20" Panel.ZIndex="100">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- C / Controls Toggle Button -->
+                    <Button Command="{Binding ToggleFullViewControlsCommand}" Background="#3B82F6" Foreground="White" FontSize="11" FontWeight="Bold" BorderThickness="0" Padding="12,5" Cursor="Hand" ToolTip="Toggle live controls panel (Press C to expand/collapse)">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="10"/>
+                            </Style>
+                        </Button.Resources>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙ Controls (C)" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Expanded Live Controls Suite (Shown when IsFullViewControlsExpanded is True) -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="{Binding IsFullViewControlsExpanded, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="✂️ Split Lines:" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <ComboBox ItemsSource="{Binding LinesPerSplitOptions}" SelectedItem="{Binding SelectedLinesPerSplitOption, Mode=TwoWay}"
+                                  Style="{StaticResource DarkComboBoxStyle}" Width="90" Height="26" Margin="0,0,8,0" ToolTip="Split projected text into selected lines per slide (1 to 5 lines)"/>
+
+                        <!-- Next Button -->
+                        <Button x:Name="FullViewNextBtn" Content="Next ▶" Command="{Binding MoveLiveProjectionDownCommand}" Background="#3B82F6" Foreground="White" FontSize="11" FontWeight="Bold" BorderThickness="0" Padding="10,4" Cursor="Hand" ToolTip="Advance to next split lines chunk or next verse/stanza">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="10"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+
+                        <!-- Scripture Lower Third Template Selector in Full View Bar -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="{Binding IsLowerThirds, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="🎨 Template:" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox ItemsSource="{Binding ScriptureTemplates}" DisplayMemberPath="DisplayName" SelectedItem="{Binding SelectedScriptureOption, Mode=TwoWay}"
+                                      Style="{StaticResource DarkComboBoxStyle}" Width="160" Height="26" ToolTip="Select broadcast graphic style for Scripture Lower Thirds"/>
+                        </StackPanel>
+
+                        <!-- Lower Third Resizing Controls -->
+                        <StackPanel x:Name="FullViewLtScalePanel" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <TextBlock Text="↔ W:" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                            <Slider x:Name="FullViewLtScaleXSlider" Minimum="0.4" Maximum="2.5" Value="1.0" Width="60" VerticalAlignment="Center" ValueChanged="FullViewLtScaleXSlider_ValueChanged" ToolTip="Adjust Lower Third Width (Scale X)"/>
+
+                            <TextBlock Text="↕ H:" Foreground="#00E5FF" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="8,0,3,0"/>
+                            <Slider x:Name="FullViewLtScaleYSlider" Minimum="0.4" Maximum="2.5" Value="1.0" Width="60" VerticalAlignment="Center" ValueChanged="FullViewLtScaleYSlider_ValueChanged" ToolTip="Adjust Lower Third Height (Scale Y)"/>
+
+                            <CheckBox x:Name="FullViewLtLockAspectCheck" IsChecked="True" Click="FullViewLtLockAspectCheck_Click" Foreground="#94A3B8" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0" ToolTip="Lock aspect ratio (Scale X and Y together)">
+                                <TextBlock Text="🔒 Lock" Foreground="#E2E8F0" FontSize="10"/>
+                            </CheckBox>
+                        </StackPanel>
+
+                        <!-- Set Position Button for Dragged Lower Third -->
+                        <Button x:Name="FullViewCommitLtPosBtn" Content="✓ Set Position" Click="FullViewCommitLtPosBtn_Click" Background="#10B981" Foreground="White" FontSize="11" FontWeight="Bold" BorderThickness="0" Padding="10,4" Margin="10,0,0,0" Cursor="Hand" ToolTip="Commit lower third position &amp; size live to broadcast &amp; secondary screen">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="10"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Exit Full View Button (Always visible on top right pill) -->
+                    <Button Command="{Binding ToggleFullViewModeCommand}" Content="🗗 Exit Full View" Background="#E11D48" Foreground="White" FontSize="11" FontWeight="Bold" BorderThickness="0" Padding="12,4" Margin="10,0,0,0" Cursor="Hand" ToolTip="Return to standard 3-card workspace">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="10"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

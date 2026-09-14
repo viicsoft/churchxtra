@@ -1,0 +1,32 @@
+# Build & Compilation Artifacts
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+.idea/
+*.user
+*.suo
+*.userprefs
+
+# Executables & Large Binaries
+*.exe
+*.dll
+*.bin
+*.db
+*.log
+*.wav
+*.zip
+*.7z
+*.rar
+
+# Installers & Third-Party Dependencies
+InstallerBuild/
+installer/
+runtimes/
+vc_redist.x64.exe
+
+# Temporary files
+files.txt
+log.txt
+temp.wav
